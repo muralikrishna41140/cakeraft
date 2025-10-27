@@ -1,6 +1,10 @@
 # CakeRaft - Professional Cake Business Management System
 
-A modern, full-stack billing and management system built specifically for artisan cake businesses. Features Next.js, Express.js, MongoDB Atlas, and WhatsApp Business API integration.
+# 🎂 CakeRaft - Professional Cake Business Management System
+
+**Live Backend:** https://cakeraft-backend.onrender.com
+
+A complete full-stack billing and management system designed specifically for cake businesses. Features Next.js, Express.js, MongoDB Atlas, and WhatsApp Business API integration.
 
 ## 🚀 Features
 

@@ -34,7 +34,7 @@ const limiter = rateLimit({
 app.use(limiter);
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['your-production-domain.com'] 
+    ? [process.env.FRONTEND_URL, 'https://cakeraft-backend.onrender.com'] 
     : ['http://localhost:3000', 'http://localhost:3001'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
