@@ -23,15 +23,22 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-// Rate limiting (more lenient in development)
+// Rate limiting - Very lenient for production deployment
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // 1000 requests for dev, 100 for production
+  max: process.env.NODE_ENV === 'production' ? 1000 : 10000, // 1000 requests per 15min for production, 10000 for dev
   message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  skip: (req) => {
+    // Skip rate limiting for health checks
+    return req.path === '/api/health';
+  }
 });
 
 // Middleware
-app.use(limiter);
+// Apply rate limiting only to API routes (not health check)
+app.use('/api', limiter);
 
 // CORS Configuration - Allow all origins in production for now, restrict later
 const allowedOrigins = [
