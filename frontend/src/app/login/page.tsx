@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '@/context/AuthContext';
 import Button from '@/components/ui/Button';
-import { Eye, EyeOff, Shield, UserCircle } from 'lucide-react';
+import { Eye, EyeOff, Shield, UserCircle, Wifi, WifiOff } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { getErrorMessage } from '@/lib/apiRetry';
 
 interface LoginFormData {
   email: string;
@@ -15,6 +16,7 @@ interface LoginFormData {
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
   const { login, isAuthenticated, isLoading: authLoading } = useAuth();
   const router = useRouter();
   
@@ -25,6 +27,23 @@ export default function LoginPage() {
     setError
   } = useForm<LoginFormData>();
 
+  // Check online status
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => {
+      setIsOnline(false);
+      toast.error('You are offline. Please check your internet connection.');
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   // Redirect if already authenticated
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
@@ -34,19 +53,34 @@ export default function LoginPage() {
   }, [isAuthenticated, authLoading, router]);
 
   const onSubmit = async (data: LoginFormData) => {
+    // Check if online
+    if (!isOnline) {
+      toast.error('You are offline. Please check your internet connection.');
+      return;
+    }
+
     try {
+      console.log('📝 Submitting login form...');
       await login(data.email, data.password);
+      console.log('✅ Login successful, redirecting to dashboard...');
       router.push('/dashboard');
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Login failed';
+      console.error('❌ Login form error:', error);
+      
+      // Extract meaningful error message
+      const errorMessage = getErrorMessage(error);
       
       // Set form errors based on API response
-      if (errorMessage.includes('email')) {
+      if (errorMessage.toLowerCase().includes('email')) {
         setError('email', { message: errorMessage });
-      } else if (errorMessage.includes('password') || errorMessage.includes('credentials')) {
+      } else if (errorMessage.toLowerCase().includes('password') || errorMessage.toLowerCase().includes('credentials')) {
         setError('password', { message: errorMessage });
       } else {
-        toast.error(errorMessage);
+        // Show general error - toast already shown in AuthContext
+        // Only set error if it's not already shown
+        if (!errorMessage.includes('timeout') && !errorMessage.includes('network')) {
+          setError('password', { message: errorMessage });
+        }
       }
     }
   };
@@ -96,6 +130,14 @@ export default function LoginPage() {
           </div>
           
           <div className="card-body">
+            {/* Network Status Indicator */}
+            {!isOnline && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
+                <WifiOff className="h-4 w-4" />
+                <span className="text-sm">You are offline. Please check your internet connection.</span>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {/* Email Field */}
               <div className="form-group">
@@ -162,10 +204,20 @@ export default function LoginPage() {
                 variant="primary"
                 size="lg"
                 isLoading={isSubmitting}
+                disabled={!isOnline || isSubmitting}
                 className="w-full"
               >
                 {isSubmitting ? 'Signing in...' : 'Sign In'}
               </Button>
+
+              {/* Help text for slow connections */}
+              {isSubmitting && (
+                <div className="text-center">
+                  <p className="text-xs text-gray-500 mt-2 animate-pulse">
+                    Please wait... This may take a few seconds on first load.
+                  </p>
+                </div>
+              )}
             </form>
           </div>
         </div>

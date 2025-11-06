@@ -5,7 +5,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 // Create axios instance
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 5000, // Reduced from 10000 to 5000ms for faster response
+  timeout: 30000, // Increased to 30 seconds to handle slower connections and cold starts
   headers: {
     'Content-Type': 'application/json',
   },
@@ -23,23 +23,50 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.error('Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
 
-// Response interceptor to handle auth errors
+// Response interceptor to handle auth errors and network issues
 api.interceptors.response.use(
   (response) => {
     return response;
   },
   (error) => {
+    // Handle network errors
+    if (!error.response) {
+      if (error.code === 'ECONNABORTED') {
+        console.error('❌ Request timeout - server took too long to respond');
+        error.message = 'Connection timeout. Please check your internet connection and try again.';
+      } else if (error.code === 'ERR_NETWORK') {
+        console.error('❌ Network error - cannot reach server');
+        error.message = 'Network error. Please check if the server is running and your internet connection is stable.';
+      } else {
+        console.error('❌ Unknown network error:', error.message);
+        error.message = 'Cannot connect to server. Please try again later.';
+      }
+      return Promise.reject(error);
+    }
+    
+    // Handle authentication errors
     if (error.response?.status === 401) {
-      // Clear token and redirect to login
-      if (typeof window !== 'undefined') {
+      // Don't redirect if this is a login attempt
+      const isLoginAttempt = error.config?.url?.includes('/auth/login');
+      
+      if (!isLoginAttempt && typeof window !== 'undefined') {
+        console.warn('🔒 Unauthorized access - redirecting to login');
         localStorage.removeItem('token');
         localStorage.removeItem('admin');
+        localStorage.removeItem('lastTokenCheck');
         window.location.href = '/login';
       }
+    }
+    
+    // Handle server errors
+    if (error.response?.status >= 500) {
+      console.error('❌ Server error:', error.response.status);
+      error.message = error.response?.data?.message || 'Server error. Please try again later.';
     }
     
     return Promise.reject(error);

@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authAPI } from '@/lib/api';
+import { retryRequest, getErrorMessage, isNetworkError } from '@/lib/apiRetry';
 import toast from 'react-hot-toast';
 
 interface Admin {
@@ -122,8 +123,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
       
-      const response = await authAPI.login(email, password);
+      console.log('🔄 Attempting login...');
+      
+      // Use retry mechanism for login to handle network issues and cold starts
+      const response = await retryRequest(
+        () => authAPI.login(email, password),
+        {
+          maxRetries: 2, // Retry up to 2 times
+          retryDelay: 1500, // Start with 1.5 second delay
+          retryCondition: (error) => {
+            // Retry on network errors or timeout, but not on auth errors
+            return isNetworkError(error) && error.response?.status !== 401;
+          }
+        }
+      );
+      
+      if (!response || !response.data) {
+        throw new Error('Invalid response from server');
+      }
+      
       const { token: newToken, admin: adminData } = response.data;
+      
+      if (!newToken || !adminData) {
+        throw new Error('Invalid login response - missing token or admin data');
+      }
       
       const now = Date.now();
       
@@ -140,9 +163,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log('✅ Login successful and persisted:', adminData.email);
       toast.success(`Welcome back, ${adminData.name || adminData.email}!`);
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Login failed';
-      console.error('❌ Login error:', message);
-      toast.error(message);
+      console.error('❌ Login error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        code: error.code
+      });
+      
+      const errorMessage = getErrorMessage(error);
+      
+      console.error('❌ Login error:', errorMessage);
+      toast.error(errorMessage);
       throw error;
     } finally {
       setIsLoading(false);
