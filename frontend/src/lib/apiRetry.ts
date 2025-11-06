@@ -37,12 +37,27 @@ export async function retryRequest<T>(
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      return await fn();
+      const result = await fn();
+      
+      // Log success if this was a retry
+      if (attempt > 0) {
+        console.log(`✅ Request succeeded on attempt ${attempt + 1}`);
+      }
+      
+      return result;
     } catch (error: any) {
       lastError = error;
 
+      // Log the error details
+      console.error(`❌ Attempt ${attempt + 1} failed:`, {
+        status: error.response?.status,
+        code: error.code,
+        message: error.message
+      });
+
       // Don't retry if it's the last attempt or if error shouldn't be retried
       if (attempt === maxRetries || !retryCondition(error)) {
+        console.log(`🛑 Not retrying. Last attempt: ${attempt === maxRetries}, Should retry: ${retryCondition(error)}`);
         throw error;
       }
 
@@ -85,7 +100,7 @@ export function isServerError(error: any): boolean {
  */
 export function getErrorMessage(error: any): string {
   if (error.code === 'ECONNABORTED') {
-    return 'Request timeout. The server is taking too long to respond. Please try again.';
+    return 'Request timeout. The server is taking too long to respond. If this is your first login, the server may be starting up (this can take 30-60 seconds on Render free tier). Please wait and try again.';
   }
 
   if (error.code === 'ERR_NETWORK') {
@@ -93,7 +108,7 @@ export function getErrorMessage(error: any): string {
   }
 
   if (error.response?.status === 401) {
-    return error.response?.data?.message || 'Invalid credentials';
+    return error.response?.data?.message || 'Invalid email or password. Please check your credentials and try again.';
   }
 
   if (error.response?.status === 404) {

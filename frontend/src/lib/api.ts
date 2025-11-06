@@ -76,7 +76,9 @@ api.interceptors.response.use(
 // API functions
 export const authAPI = {
   login: (email: string, password: string) => 
-    api.post('/auth/login', { email, password }),
+    api.post('/auth/login', { email, password }, { 
+      timeout: 60000 // 60 seconds for login (handles Render cold starts)
+    }),
   
   getProfile: () => 
     api.get('/auth/profile'),

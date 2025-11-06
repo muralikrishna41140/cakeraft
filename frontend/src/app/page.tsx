@@ -10,30 +10,32 @@ export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    console.log('🏠 Home page - ALWAYS redirecting to login for fresh authentication');
-    
-    // Always redirect to login page regardless of authentication state
-    // This forces users to login every time they visit the website
-    router.push('/login');
-  }, [router]);
+    if (!isLoading) {
+      if (isAuthenticated) {
+        console.log('✅ User is authenticated, redirecting to dashboard');
+        router.push('/dashboard');
+      } else {
+        console.log('❌ User is not authenticated, redirecting to login');
+        router.push('/login');
+      }
+    }
+  }, [isAuthenticated, isLoading, router]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <LoadingSpinner size="lg" />
-          <p className="mt-4 text-gray-600">Redirecting to login...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show loading while redirect happens
+  // Show loading while checking auth and redirecting
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="text-center">
+        <div className="mb-4 mx-auto h-16 w-16 rounded-full overflow-hidden border-2 border-green-600 shadow-lg">
+          <img 
+            src="https://res.cloudinary.com/dsguaqukb/image/upload/v1758778085/cake_fak42q.jpg"
+            alt="CakeRaft Logo"
+            className="w-full h-full object-cover"
+          />
+        </div>
         <LoadingSpinner size="lg" />
-        <p className="mt-4 text-gray-600">Redirecting to login...</p>
+        <p className="mt-4 text-gray-600">
+          {isLoading ? 'Checking authentication...' : 'Redirecting...'}
+        </p>
       </div>
     </div>
   );

@@ -129,11 +129,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await retryRequest(
         () => authAPI.login(email, password),
         {
-          maxRetries: 2, // Retry up to 2 times
-          retryDelay: 1500, // Start with 1.5 second delay
+          maxRetries: 1, // Only retry once for login
+          retryDelay: 2000, // Wait 2 seconds before retry
           retryCondition: (error) => {
-            // Retry on network errors or timeout, but not on auth errors
-            return isNetworkError(error) && error.response?.status !== 401;
+            // Only retry on pure network errors or timeouts
+            // Don't retry on 401 (invalid credentials) or any other HTTP error
+            const shouldRetry = (
+              error.code === 'ECONNABORTED' || 
+              error.code === 'ERR_NETWORK'
+            ) && !error.response;
+            
+            console.log('🔍 Should retry login?', {
+              shouldRetry,
+              code: error.code,
+              hasResponse: !!error.response,
+              status: error.response?.status
+            });
+            
+            return shouldRetry;
           }
         }
       );
