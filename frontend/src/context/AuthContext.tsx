@@ -63,17 +63,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const adminData = JSON.parse(storedAdmin);
           setAdmin(adminData);
           
-          // Only verify token if it's been more than 5 minutes since last check
+          // Only verify token if it's been more than 30 minutes since last check
+          // This reduces unnecessary verification requests and prevents timeout issues
           const now = Date.now();
           const lastCheckTime = lastCheck ? parseInt(lastCheck) : 0;
-          const fiveMinutes = 5 * 60 * 1000;
+          const thirtyMinutes = 30 * 60 * 1000; // Increased from 5 to 30 minutes
           
-          if (now - lastCheckTime > fiveMinutes) {
-            console.log('🔄 Verifying token (last check was more than 5 minutes ago)...');
+          if (now - lastCheckTime > thirtyMinutes) {
+            console.log('🔄 Verifying token (last check was more than 30 minutes ago)...');
+            
+            // Set a timeout for verification to prevent hanging
+            const verificationTimeout = new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Verification timeout')), 10000) // 10 second timeout
+            );
             
             try {
-              // Verify token is still valid
-              const response = await authAPI.verifyToken();
+              // Race between verification and timeout
+              const response = await Promise.race([
+                authAPI.verifyToken(),
+                verificationTimeout
+              ]) as any;
+              
               const freshAdminData = response.data.admin;
               
               // Update admin data with fresh info from server
@@ -83,14 +93,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               setLastTokenCheck(now);
               
               console.log('✅ Token verified and authentication restored for:', freshAdminData.email);
-            } catch (error) {
-              console.error('❌ Token verification failed, clearing auth:', error);
-              // Clear invalid auth data
-              localStorage.removeItem('token');
-              localStorage.removeItem('admin');
-              localStorage.removeItem('lastTokenCheck');
-              setToken(null);
-              setAdmin(null);
+            } catch (error: any) {
+              // If verification fails due to timeout or network, keep cached auth but log warning
+              if (error.message === 'Verification timeout' || error.code === 'ECONNABORTED' || error.code === 'ERR_NETWORK') {
+                console.warn('⚠️ Token verification timed out or network issue - using cached auth');
+                // Keep the cached auth, just update the last check time to retry later
+                localStorage.setItem('lastTokenCheck', (now - (25 * 60 * 1000)).toString()); // Set to 25 min ago so it retries in 5 min
+                setLastTokenCheck(now - (25 * 60 * 1000));
+              } else {
+                // Only clear auth for actual auth failures (401, invalid token, etc.)
+                console.error('❌ Token verification failed, clearing auth:', error);
+                localStorage.removeItem('token');
+                localStorage.removeItem('admin');
+                localStorage.removeItem('lastTokenCheck');
+                setToken(null);
+                setAdmin(null);
+              }
             }
           } else {
             console.log('✅ Using cached authentication (verified recently)');

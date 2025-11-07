@@ -15,6 +15,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
+      console.log('❌ User is not authenticated, redirecting to login');
       router.push('/login');
     }
   }, [isAuthenticated, isLoading, router]);
