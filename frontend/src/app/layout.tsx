@@ -1,25 +1,126 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import { Toaster } from 'react-hot-toast';
+import { 
+  SITE_CONFIG, 
+  KEYWORDS, 
+  getOrganizationSchema, 
+  getWebsiteSchema,
+  getSoftwareApplicationSchema,
+  getFAQSchema
+} from '@/lib/seo';
+import Script from 'next/script';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ 
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
+// Viewport configuration for better mobile SEO
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#16A34A',
+};
+
+// Enhanced Metadata for SEO
 export const metadata: Metadata = {
-  title: 'CakeRaft - Professional Cake Business Management',
-  description: 'Complete billing and management system for cake businesses with WhatsApp integration and loyalty rewards',
-  keywords: 'cake business, billing, bakery management, invoicing, loyalty rewards, WhatsApp integration',
+  metadataBase: new URL(SITE_CONFIG.url),
+  
+  title: {
+    default: SITE_CONFIG.fullName,
+    template: '%s | CakeRaft',
+  },
+  
+  description: SITE_CONFIG.description,
+  
+  keywords: [...KEYWORDS.primary, ...KEYWORDS.secondary, ...KEYWORDS.lsi].join(', '),
+  
+  authors: [{ name: SITE_CONFIG.name }],
+  
+  creator: SITE_CONFIG.name,
+  
+  publisher: SITE_CONFIG.name,
+  
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  
   icons: {
-    icon: 'https://res.cloudinary.com/dsguaqukb/image/upload/v1758778085/cake_fak42q.jpg',
-    shortcut: 'https://res.cloudinary.com/dsguaqukb/image/upload/v1758778085/cake_fak42q.jpg',
-    apple: 'https://res.cloudinary.com/dsguaqukb/image/upload/v1758778085/cake_fak42q.jpg',
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: [
+      { url: '/apple-touch-icon.png' },
+    ],
+    other: [
+      {
+        rel: 'mask-icon',
+        url: '/safari-pinned-tab.svg',
+        color: '#16A34A',
+      },
+    ],
   },
+  
+  manifest: '/site.webmanifest',
+  
   openGraph: {
-    title: 'CakeRaft - Professional Cake Business Management',
-    description: 'Complete billing and management system for cake businesses',
-    images: ['https://res.cloudinary.com/dsguaqukb/image/upload/v1758778085/cake_fak42q.jpg'],
+    type: 'website',
+    locale: 'en_US',
+    url: SITE_CONFIG.url,
+    title: SITE_CONFIG.fullName,
+    description: SITE_CONFIG.description,
+    siteName: SITE_CONFIG.name,
+    images: [
+      {
+        url: `${SITE_CONFIG.url}/og-image.jpg`,
+        width: 1200,
+        height: 630,
+        alt: 'CakeRaft - Professional Cake Business Management System',
+        type: 'image/jpeg',
+      },
+    ],
   },
+  
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_CONFIG.fullName,
+    description: SITE_CONFIG.description,
+    creator: SITE_CONFIG.social.twitter,
+    images: [`${SITE_CONFIG.url}/twitter-image.jpg`],
+  },
+  
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  
+  verification: {
+    google: 'your-google-verification-code',
+    yandex: 'your-yandex-verification-code',
+  },
+  
+  alternates: {
+    canonical: SITE_CONFIG.url,
+  },
+  
+  category: 'Business & Productivity',
 };
 
 export default function RootLayout({
@@ -27,9 +128,68 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Generate structured data schemas
+  const organizationSchema = getOrganizationSchema();
+  const websiteSchema = getWebsiteSchema();
+  const softwareSchema = getSoftwareApplicationSchema();
+  const faqSchema = getFAQSchema();
+
   return (
     <html lang="en" className="h-full">
+      <head>
+        {/* Structured Data - JSON-LD */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationSchema),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteSchema),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(softwareSchema),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(faqSchema),
+          }}
+        />
+        
+        {/* Preconnect to important domains */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+        
+        {/* DNS Prefetch for faster loading */}
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+      </head>
       <body className={`${inter.className} h-full antialiased`}>
+        {/* Google Analytics 4 */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-XXXXXXXXXX', {
+              page_path: window.location.pathname,
+              anonymize_ip: true,
+            });
+          `}
+        </Script>
+        
         <AuthProvider>
           <div id="root" className="h-full">
             {children}

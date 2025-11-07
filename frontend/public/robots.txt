@@ -1,0 +1,32 @@
+# *
+User-agent: *
+Allow: /
+
+# Disallow admin and private pages
+Disallow: /login
+Disallow: /dashboard
+Disallow: /products/add
+Disallow: /products/edit
+Disallow: /billing
+Disallow: /analytics
+Disallow: /categories/manage
+Disallow: /api/
+
+# Googlebot
+User-agent: Googlebot
+Allow: /
+Disallow: /login
+Disallow: /dashboard
+Disallow: /api/
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Disallow: /login
+Disallow: /dashboard
+
+# Sitemap
+Sitemap: https://cakeraft.com/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 10

@@ -1,39 +1,29 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable React Strict Mode
+  // Enable React Strict Mode for better development
   reactStrictMode: true,
   
-  // Enable SWC minification
+  // Enable SWC minification for faster builds
   swcMinify: true,
   
-  // Compression
-  compress: true,
-  
-  // Image optimization for SEO
+  // Image optimization
   images: {
-    domains: ['localhost', 'res.cloudinary.com'],
+    domains: ['res.cloudinary.com', 'localhost'],
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60,
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    remotePatterns: [
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '5001',
-        pathname: '/uploads/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
-        pathname: '/**',
-      },
-    ],
   },
   
-  // SEO and Security Headers
+  // Compression
+  compress: true,
+  
+  // Production optimizations
+  productionBrowserSourceMaps: false,
+  
+  // Headers for SEO and security
   async headers() {
     return [
       {
@@ -70,6 +60,15 @@ const nextConfig = {
         ],
       },
       {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, must-revalidate',
+          },
+        ],
+      },
+      {
         source: '/:all*(svg|jpg|jpeg|png|gif|ico|webp|avif)',
         headers: [
           {
@@ -90,7 +89,21 @@ const nextConfig = {
     ];
   },
   
-  // Experimental performance features
+  // Rewrites for clean URLs
+  async rewrites() {
+    return [
+      {
+        source: '/sitemap.xml',
+        destination: '/api/sitemap',
+      },
+      {
+        source: '/robots.txt',
+        destination: '/api/robots',
+      },
+    ];
+  },
+  
+  // Experimental features for better performance
   experimental: {
     optimizeCss: true,
     optimizePackageImports: ['lucide-react', 'recharts'],
@@ -98,9 +111,9 @@ const nextConfig = {
   
   // Environment variables
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api',
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'https://cakeraft.com',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api',
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
