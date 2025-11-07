@@ -3,7 +3,17 @@
  * Optimized for top Google rankings
  */
 
-import { DefaultSeoProps } from 'next-seo';
+// Type definition for SEO props
+export interface DefaultSeoProps {
+  defaultTitle?: string;
+  titleTemplate?: string;
+  description?: string;
+  canonical?: string;
+  openGraph?: any;
+  twitter?: any;
+  additionalMetaTags?: any[];
+  additionalLinkTags?: any[];
+}
 
 // Primary Keywords (High-Impact, Low-Competition)
 export const KEYWORDS = {
