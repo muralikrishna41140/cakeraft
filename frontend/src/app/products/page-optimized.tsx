@@ -21,6 +21,7 @@ import { Product, Category } from '@/types';
 import toast from 'react-hot-toast';
 import { useProducts, useCategories, useDebouncedSearch } from '@/hooks/useOptimizedQuery';
 import optimizedAPI from '@/lib/optimizedApi';
+import { getProductImageUrl } from '@/lib/utils';
 
 function ProductsContent() {
   const router = useRouter();
@@ -294,7 +295,7 @@ const ProductCard = React.memo(({
   onDelete: (id: string) => void;
   onEdit: () => void;
 }) => {
-  const imageUrl = product.imageUrl || null;
+  const imageUrl = getProductImageUrl(product.imageUrl);
 
   return (
     <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group border border-gray-100 hover:border-green-200">

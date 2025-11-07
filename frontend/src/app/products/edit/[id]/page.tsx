@@ -22,6 +22,7 @@ import {
 import { productAPI } from '@/lib/api';
 import { Category, Product } from '@/types';
 import toast from 'react-hot-toast';
+import { getProductImageUrl } from '@/lib/utils';
 
 interface ProductForm {
   name: string;
@@ -72,7 +73,7 @@ export default function EditProductPage() {
 
       // Set existing image preview
       if (productData.imageUrl) {
-        setImagePreview(`http://localhost:5001${productData.imageUrl}`);
+        setImagePreview(getProductImageUrl(productData.imageUrl));
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -97,7 +98,7 @@ export default function EditProductPage() {
 
   const removeImage = () => {
     setImageFile(null);
-    setImagePreview(product?.imageUrl ? `http://localhost:5001${product.imageUrl}` : null);
+    setImagePreview(getProductImageUrl(product?.imageUrl || null));
   };
 
   const onSubmit = async (data: ProductForm) => {

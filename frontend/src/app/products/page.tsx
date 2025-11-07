@@ -19,6 +19,7 @@ import {
 import { productAPI } from '@/lib/api';
 import { Product, Category } from '@/types';
 import toast from 'react-hot-toast';
+import { getProductImageUrl } from '@/lib/utils';
 
 export default function ProductsPage() {
   const router = useRouter();
@@ -199,7 +200,7 @@ export default function ProductsPage() {
                     <div className="aspect-square bg-gray-100 rounded-lg mb-3 sm:mb-4 flex items-center justify-center overflow-hidden">
                       {product.imageUrl ? (
                         <img
-                          src={`http://localhost:5001${product.imageUrl}`}
+                          src={getProductImageUrl(product.imageUrl) || ''}
                           alt={product.name}
                           className="w-full h-full object-cover"
                         />

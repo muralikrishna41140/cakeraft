@@ -28,6 +28,7 @@ import {
 import { productAPI, checkoutAPI, billsAPI } from '@/lib/api';
 import { Product, CartItem, CustomerInfo, Category } from '@/types';
 import toast from 'react-hot-toast';
+import { getProductImageUrl } from '@/lib/utils';
 
 interface LocalCartItem {
   product: Product;
@@ -580,7 +581,7 @@ export default function BillingPage() {
                             <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
                               {product.imageUrl ? (
                                 <img
-                                  src={`http://localhost:5001${product.imageUrl}`}
+                                  src={getProductImageUrl(product.imageUrl) || ''}
                                   alt={product.name}
                                   className="w-full h-full object-cover rounded-lg"
                                 />
