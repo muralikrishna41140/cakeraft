@@ -168,18 +168,25 @@ class GoogleSheetsService {
 
   async exportRevenueData(revenueData) {
     try {
+      console.log('🔍 Starting Google Sheets export...');
+      console.log('📝 Revenue data to export:', revenueData.length, 'days');
+      
       if (!this.sheets) {
+        console.log('🔐 Authenticating with Google Sheets...');
         await this.authenticate();
       }
 
       const spreadsheetId = this.getSpreadsheetId();
+      console.log('📊 Spreadsheet ID:', spreadsheetId);
       
       if (!spreadsheetId) {
         throw new Error('Google Sheets spreadsheet ID not configured');
       }
 
       // First, ensure the sheet has headers and get the sheet name
+      console.log('📋 Setting up sheet headers...');
       await this.setupSheetHeaders();
+      console.log('✅ Sheet name:', this.sheetName);
 
       // Format data for Google Sheets
       const values = revenueData.map(item => [
@@ -192,6 +199,8 @@ class GoogleSheetsService {
         throw new Error('No revenue data to export');
       }
 
+      console.log('📤 Appending', values.length, 'rows to Google Sheets...');
+      
       // Append data to the sheet using the detected sheet name
       const response = await this.sheets.spreadsheets.values.append({
         spreadsheetId: spreadsheetId,
@@ -212,7 +221,10 @@ class GoogleSheetsService {
         updatedRange: response.data.updates.updatedRange,
       };
     } catch (error) {
-      console.error('❌ Error exporting to Google Sheets:', error.message);
+      console.error('❌ Error exporting to Google Sheets:');
+      console.error('Error Message:', error.message);
+      console.error('Error Code:', error.code);
+      console.error('Error Details:', error.response?.data || error);
       throw error;
     }
   }

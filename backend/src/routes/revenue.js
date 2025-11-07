@@ -284,11 +284,15 @@ router.post('/export', protect, async (req, res) => {
       exportResult = await googleSheetsService.exportRevenueData(revenueData);
       console.log('✅ Export to Google Sheets successful');
     } catch (exportError) {
-      console.error('❌ Export to Google Sheets failed:', exportError.message);
+      console.error('❌ Export to Google Sheets failed:');
+      console.error('Error Message:', exportError.message);
+      console.error('Error Stack:', exportError.stack);
+      console.error('Full Error:', exportError);
       return res.status(500).json({
         success: false,
         message: 'Failed to export to Google Sheets',
-        error: exportError.message
+        error: exportError.message,
+        details: exportError.response?.data || exportError.toString()
       });
     }
 
