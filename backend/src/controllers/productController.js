@@ -1,10 +1,5 @@
 import { Product, Category } from '../models/Product.js';
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { deleteFromCloudinary } from '../config/cloudinary.js';
 
 // CATEGORY CONTROLLERS
 
@@ -306,11 +301,10 @@ export const createProduct = async (req, res) => {
     // Handle image upload
     if (req.file) {
       productData.image = {
-        filename: req.file.filename,
+        url: req.file.path, // Cloudinary returns secure_url in path
+        publicId: req.file.filename, // Cloudinary returns public_id in filename
         originalName: req.file.originalname,
-        mimetype: req.file.mimetype,
-        size: req.file.size,
-        path: req.file.path
+        size: req.file.size
       };
     }
     
@@ -325,15 +319,15 @@ export const createProduct = async (req, res) => {
       data: product
     });
   } catch (error) {
-    // Delete uploaded file if product creation fails
-    if (req.file) {
+    // Delete uploaded file from Cloudinary if product creation fails
+    if (req.file && req.file.filename) {
       try {
-        await fs.unlink(req.file.path);
-      } catch (unlinkError) {
-        console.error('Error deleting uploaded file:', unlinkError);
+        await deleteFromCloudinary(req.file.filename);
+      } catch (deleteError) {
+        console.error('Error deleting uploaded file from Cloudinary:', deleteError);
       }
     }
-    
+
     console.error('Create product error:', error);
     res.status(500).json({
       success: false,
@@ -408,23 +402,22 @@ export const updateProduct = async (req, res) => {
     
     // Handle image update
     if (req.file) {
-      // Delete old image if exists
-      if (existingProduct.image && existingProduct.image.filename) {
+      // Delete old image from Cloudinary if exists
+      if (existingProduct.image && existingProduct.image.publicId) {
         try {
-          const oldImagePath = path.join(__dirname, '../../uploads', existingProduct.image.filename);
-          await fs.unlink(oldImagePath);
+          await deleteFromCloudinary(existingProduct.image.publicId);
         } catch (error) {
-          console.error('Error deleting old image:', error);
+          console.error('Error deleting old image from Cloudinary:', error);
+          // Continue with update even if old image deletion fails
         }
       }
-      
-      // Add new image
+
+      // Add new image from Cloudinary
       updateData.image = {
-        filename: req.file.filename,
+        url: req.file.path, // Cloudinary secure_url
+        publicId: req.file.filename, // Cloudinary public_id
         originalName: req.file.originalname,
-        mimetype: req.file.mimetype,
-        size: req.file.size,
-        path: req.file.path
+        size: req.file.size
       };
     }
     
@@ -440,15 +433,15 @@ export const updateProduct = async (req, res) => {
       data: product
     });
   } catch (error) {
-    // Delete uploaded file if update fails
-    if (req.file) {
+    // Delete uploaded file from Cloudinary if update fails
+    if (req.file && req.file.filename) {
       try {
-        await fs.unlink(req.file.path);
-      } catch (unlinkError) {
-        console.error('Error deleting uploaded file:', unlinkError);
+        await deleteFromCloudinary(req.file.filename);
+      } catch (deleteError) {
+        console.error('Error deleting uploaded file from Cloudinary:', deleteError);
       }
     }
-    
+
     console.error('Update product error:', error);
     res.status(500).json({
       success: false,
@@ -474,17 +467,17 @@ export const deleteProduct = async (req, res) => {
     // Soft delete
     product.isActive = false;
     await product.save();
-    
-    // Delete associated image
-    if (product.image && product.image.filename) {
+
+    // Delete associated image from Cloudinary
+    if (product.image && product.image.publicId) {
       try {
-        const imagePath = path.join(__dirname, '../../uploads', product.image.filename);
-        await fs.unlink(imagePath);
+        await deleteFromCloudinary(product.image.publicId);
       } catch (error) {
-        console.error('Error deleting product image:', error);
+        console.error('Error deleting product image from Cloudinary:', error);
+        // Continue even if image deletion fails
       }
     }
-    
+
     res.status(200).json({
       success: true,
       message: 'Product deleted successfully'

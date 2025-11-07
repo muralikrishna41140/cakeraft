@@ -65,7 +65,11 @@ const productSchema = new mongoose.Schema({
     required: [true, 'Product category is required']
   },
   image: {
-    filename: {
+    url: {
+      type: String,
+      default: null
+    },
+    publicId: {
       type: String,
       default: null
     },
@@ -73,16 +77,8 @@ const productSchema = new mongoose.Schema({
       type: String,
       default: null
     },
-    mimetype: {
-      type: String,
-      default: null
-    },
     size: {
       type: Number,
-      default: null
-    },
-    path: {
-      type: String,
       default: null
     }
   },
@@ -99,10 +95,10 @@ productSchema.index({ name: 'text', description: 'text' });
 productSchema.index({ category: 1, isActive: 1 });
 productSchema.index({ isActive: 1, createdAt: -1 });
 
-// Virtual for image URL
+// Virtual for image URL (for backward compatibility)
 productSchema.virtual('imageUrl').get(function() {
-  if (this.image && this.image.filename) {
-    return `/uploads/${this.image.filename}`;
+  if (this.image && this.image.url) {
+    return this.image.url;
   }
   return null;
 });
