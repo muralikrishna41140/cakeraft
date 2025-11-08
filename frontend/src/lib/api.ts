@@ -5,7 +5,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 // Create axios instance
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 15000, // 15 seconds - balanced timeout for local development and production
+  timeout: 120000, // 120 seconds (2 minutes) - handles Render.com cold starts in production
   headers: {
     'Content-Type': 'application/json',
   },
@@ -38,13 +38,13 @@ api.interceptors.response.use(
     if (!error.response) {
       if (error.code === 'ECONNABORTED') {
         console.error('❌ Request timeout - server took too long to respond');
-        error.message = 'Connection timeout. Please check your internet connection and try again.';
+        error.message = 'Server is starting up (cold start). Please wait 30 seconds and try again.';
       } else if (error.code === 'ERR_NETWORK') {
         console.error('❌ Network error - cannot reach server');
-        error.message = 'Network error. Please check if the server is running and your internet connection is stable.';
+        error.message = 'Cannot reach server. Please check your internet connection or try again in a moment.';
       } else {
         console.error('❌ Unknown network error:', error.message);
-        error.message = 'Cannot connect to server. Please try again later.';
+        error.message = 'Cannot connect to server. The server may be starting up. Please try again in 30 seconds.';
       }
       return Promise.reject(error);
     }
