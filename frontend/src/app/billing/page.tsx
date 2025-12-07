@@ -680,9 +680,9 @@ export default function BillingPage() {
               </div>
             </div>
 
-            {/* Cart Section - Fixed at bottom on mobile */}
-            <div className="lg:relative fixed bottom-0 left-0 right-0 lg:bottom-auto lg:left-auto lg:right-auto z-20">
-              <div className="card rounded-t-xl lg:rounded-lg shadow-lg lg:shadow-md">
+            {/* Cart Section - Hidden on mobile, visible on desktop */}
+            <div className="hidden lg:block">
+              <div className="card rounded-lg shadow-md">
                 <div className="card-header">
                   <h2 className="text-base sm:text-lg font-semibold">
                     Shopping Cart
@@ -1234,14 +1234,41 @@ export default function BillingPage() {
         {checkoutSuccess && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl max-h-[90vh] overflow-y-auto">
-              <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-6 rounded-t-2xl text-white">
-                <div className="flex items-center justify-center mb-4">
-                  <CheckCircle className="h-16 w-16 text-white" />
+              {/* Header with CakeRaft Branding */}
+              <div className="bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 p-6 rounded-t-2xl text-white relative overflow-hidden">
+                {/* Decorative background pattern */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-16 -translate-y-16"></div>
+                  <div className="absolute bottom-0 right-0 w-40 h-40 bg-white rounded-full translate-x-20 translate-y-20"></div>
                 </div>
-                <h3 className="text-2xl font-bold text-center">
+
+                {/* Logo and Brand Name */}
+                <div className="relative z-10 flex items-center justify-center mb-4">
+                  <div className="flex flex-col items-center">
+                    <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg mb-3">
+                      <img
+                        src="https://res.cloudinary.com/du4jhwpak/image/upload/v1765107523/WhatsApp_Image_2025-12-04_at_15.13.04_80e34f88_owuux1.jpg"
+                        alt="CakeRaft Logo"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <h2 className="text-2xl font-bold tracking-wide">
+                      CakeRaft
+                    </h2>
+                    <p className="text-pink-100 text-sm">
+                      Artisan Cake Creations
+                    </p>
+                  </div>
+                </div>
+
+                {/* Success Message */}
+                <div className="relative z-10 flex items-center justify-center mb-3">
+                  <CheckCircle className="h-12 w-12 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-center">
                   Order Completed Successfully!
                 </h3>
-                <p className="text-green-100 text-center mt-2">
+                <p className="text-pink-100 text-center mt-2">
                   Bill #{checkoutSuccess?.bill?.billNumber || "N/A"}
                 </p>
               </div>
@@ -1423,7 +1450,7 @@ export default function BillingPage() {
                 <div className="flex gap-3 pt-4">
                   <Button
                     variant="outline"
-                    className="flex-1"
+                    className="flex-1 border-2 border-pink-500 text-pink-600 hover:bg-pink-50"
                     onClick={() => window.print()}
                   >
                     Print Bill
@@ -1431,7 +1458,7 @@ export default function BillingPage() {
                   <Button
                     variant="primary"
                     onClick={() => setCheckoutSuccess(null)}
-                    className="flex-1 bg-gradient-to-r from-pink-500 to-rose-500"
+                    className="flex-1 bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 hover:from-pink-600 hover:via-rose-600 hover:to-pink-700 shadow-lg"
                   >
                     Close
                   </Button>
@@ -1526,12 +1553,14 @@ export default function BillingPage() {
         )}
 
         {/* Fixed Checkout Button at Bottom */}
-        <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t shadow-2xl">
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t-2 border-pink-200 shadow-2xl">
           <div className="max-w-7xl mx-auto px-4 py-3 sm:py-4">
             <div className="flex items-center justify-between gap-4">
               <div className="flex flex-col">
-                <span className="text-xs text-gray-500">Total Amount</span>
-                <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                <span className="text-xs text-gray-500 font-medium">
+                  Total Amount
+                </span>
+                <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
                   ₹{getTotalAmount().toFixed(2)}
                 </span>
               </div>
@@ -1539,7 +1568,7 @@ export default function BillingPage() {
                 variant="primary"
                 onClick={() => setShowCheckout(true)}
                 disabled={cart.length === 0}
-                className="flex items-center gap-2 text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 shadow-lg hover:shadow-xl transition-all"
+                className="flex items-center gap-2 text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 hover:from-pink-600 hover:via-rose-600 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all"
               >
                 <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6" />
                 <span>Checkout ({getTotalItems()})</span>
