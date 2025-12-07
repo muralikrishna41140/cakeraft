@@ -324,7 +324,14 @@ router.post('/export', protect, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error exporting revenue data',
-      error: error.message
+      error: error.message,
+      code: error.code,
+      details: {
+        hasSpreadsheetId: !!process.env.GOOGLE_SHEETS_SPREADSHEET_ID,
+        hasCredentials: !!process.env.GOOGLE_APPLICATION_CREDENTIALS,
+        errorType: error.constructor.name,
+        ...(error.response?.data && { apiError: error.response.data })
+      }
     });
   }
 });
@@ -339,6 +346,103 @@ router.get('/export/test', protect, async (req, res) => {
       success: false,
       message: 'Error testing Google Sheets connection',
       error: error.message
+    });
+  }
+});
+
+// GET /api/revenue/export/diagnostic - Detailed diagnostic information
+router.get('/export/diagnostic', protect, async (req, res) => {
+  try {
+    const diagnostic = {
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV,
+      checks: {}
+    };
+
+    // Check 1: Spreadsheet ID configured
+    diagnostic.checks.spreadsheetId = {
+      configured: !!process.env.GOOGLE_SHEETS_SPREADSHEET_ID,
+      value: process.env.GOOGLE_SHEETS_SPREADSHEET_ID ? 
+        `${process.env.GOOGLE_SHEETS_SPREADSHEET_ID.substring(0, 10)}...` : 
+        'NOT SET'
+    };
+
+    // Check 2: Credentials path
+    diagnostic.checks.credentialsPath = {
+      env: process.env.GOOGLE_APPLICATION_CREDENTIALS || 'NOT SET',
+      expected: './src/config/google-credentials.json'
+    };
+
+    // Check 3: Check if credentials file exists
+    const fs = await import('fs');
+    const path = await import('path');
+    const { fileURLToPath } = await import('url');
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const credentialsPath = path.join(__dirname, '..', 'config', 'google-credentials.json');
+    
+    diagnostic.checks.credentialsFile = {
+      path: credentialsPath,
+      exists: fs.existsSync(credentialsPath)
+    };
+
+    // Check 4: Try to load credentials
+    if (fs.existsSync(credentialsPath)) {
+      try {
+        const credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf8'));
+        diagnostic.checks.credentialsValid = {
+          hasProjectId: !!credentials.project_id,
+          hasClientEmail: !!credentials.client_email,
+          hasPrivateKey: !!credentials.private_key,
+          clientEmail: credentials.client_email
+        };
+      } catch (e) {
+        diagnostic.checks.credentialsValid = {
+          error: 'Failed to parse credentials file',
+          message: e.message
+        };
+      }
+    }
+
+    // Check 5: Test authentication
+    try {
+      await googleSheetsService.authenticate();
+      diagnostic.checks.authentication = { success: true };
+    } catch (e) {
+      diagnostic.checks.authentication = {
+        success: false,
+        error: e.message
+      };
+    }
+
+    // Check 6: Test spreadsheet access
+    if (diagnostic.checks.authentication.success) {
+      try {
+        await googleSheetsService.setupSheetHeaders();
+        diagnostic.checks.spreadsheetAccess = {
+          success: true,
+          sheetName: googleSheetsService.sheetName
+        };
+      } catch (e) {
+        diagnostic.checks.spreadsheetAccess = {
+          success: false,
+          error: e.message,
+          code: e.code
+        };
+      }
+    }
+
+    res.json({
+      success: true,
+      diagnostic
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error running diagnostic',
+      error: error.message,
+      stack: error.stack
     });
   }
 });

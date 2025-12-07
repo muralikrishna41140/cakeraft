@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import ProtectedRoute from '@/components/ProtectedRoute';
-import Button from '@/components/ui/Button';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import { 
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { useForm } from "react-hook-form";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import Button from "@/components/ui/Button";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import {
   ArrowLeft,
   Upload,
   X,
@@ -17,12 +17,12 @@ import {
   Heart,
   Gift,
   Award,
-  Plus
-} from 'lucide-react';
-import { productAPI } from '@/lib/api';
-import { Category, Product } from '@/types';
-import toast from 'react-hot-toast';
-import { getProductImageUrl } from '@/lib/utils';
+  Plus,
+} from "lucide-react";
+import { productAPI } from "@/lib/api";
+import { Category, Product } from "@/types";
+import toast from "react-hot-toast";
+import { getProductImageUrl } from "@/lib/utils";
 
 interface ProductForm {
   name: string;
@@ -34,7 +34,7 @@ export default function EditProductPage() {
   const router = useRouter();
   const params = useParams();
   const productId = params.id as string;
-  
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,7 +47,7 @@ export default function EditProductPage() {
     handleSubmit,
     formState: { errors },
     reset,
-    setValue
+    setValue,
   } = useForm<ProductForm>();
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export default function EditProductPage() {
       setLoading(true);
       const [productRes, categoriesRes] = await Promise.all([
         productAPI.getProduct(productId),
-        productAPI.getCategories()
+        productAPI.getCategories(),
       ]);
 
       const productData = productRes.data.data;
@@ -67,18 +67,18 @@ export default function EditProductPage() {
       setCategories(categoriesRes.data.data || []);
 
       // Pre-populate form
-      setValue('name', productData.name);
-      setValue('price', productData.price);
-      setValue('category', productData.category._id);
+      setValue("name", productData.name);
+      setValue("price", productData.price);
+      setValue("category", productData.category._id);
 
       // Set existing image preview
       if (productData.imageUrl) {
         setImagePreview(getProductImageUrl(productData.imageUrl));
       }
     } catch (error) {
-      console.error('Error loading data:', error);
-      toast.error('Failed to load product data');
-      router.push('/products');
+      console.error("Error loading data:", error);
+      toast.error("Failed to load product data");
+      router.push("/products");
     } finally {
       setLoading(false);
     }
@@ -98,7 +98,7 @@ export default function EditProductPage() {
 
   const removeImage = () => {
     setImageFile(null);
-    setImagePreview(getProductImageUrl(product?.imageUrl || null));
+    setImagePreview(null);
   };
 
   const onSubmit = async (data: ProductForm) => {
@@ -106,21 +106,21 @@ export default function EditProductPage() {
       setIsSubmitting(true);
 
       const formData = new FormData();
-      formData.append('name', data.name);
-      formData.append('description', product?.description || ''); // Keep existing description
-      formData.append('price', data.price.toString());
-      formData.append('category', data.category);
+      formData.append("name", data.name);
+      formData.append("description", product?.description || ""); // Keep existing description
+      formData.append("price", data.price.toString());
+      formData.append("category", data.category);
 
       if (imageFile) {
-        formData.append('image', imageFile);
+        formData.append("image", imageFile);
       }
 
       await productAPI.updateProduct(productId, formData);
-      toast.success('Cake updated successfully! 🎂');
-      router.push('/products');
+      toast.success("Cake updated successfully! 🎂");
+      router.push("/products");
     } catch (error: any) {
-      console.error('Error updating product:', error);
-      toast.error(error.response?.data?.message || 'Failed to update cake');
+      console.error("Error updating product:", error);
+      toast.error(error.response?.data?.message || "Failed to update cake");
     } finally {
       setIsSubmitting(false);
     }
@@ -166,7 +166,7 @@ export default function EditProductPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => router.push('/products')}
+                  onClick={() => router.push("/products")}
                   className="flex items-center gap-2 bg-white/80 hover:bg-white border-green-200 text-green-700 hover:text-green-800"
                 >
                   <ArrowLeft className="h-4 w-4" />
@@ -191,7 +191,9 @@ export default function EditProductPage() {
             <div className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-400 p-8 text-white">
               <div className="flex items-center justify-center mb-4">
                 <Award className="h-12 w-12 text-white/90 mr-4" />
-                <h2 className="text-3xl font-bold text-center">Update Your Masterpiece</h2>
+                <h2 className="text-3xl font-bold text-center">
+                  Update Your Masterpiece
+                </h2>
               </div>
               <p className="text-center text-white/90 text-lg">
                 Perfect your delightful creation ✨
@@ -211,9 +213,12 @@ export default function EditProductPage() {
                     </label>
                     <input
                       type="text"
-                      {...register('name', { 
-                        required: 'Please enter the cake name',
-                        minLength: { value: 2, message: 'Name must be at least 2 characters' }
+                      {...register("name", {
+                        required: "Please enter the cake name",
+                        minLength: {
+                          value: 2,
+                          message: "Name must be at least 2 characters",
+                        },
                       })}
                       className="input border-green-200 focus:border-green-400 focus:ring-green-300 bg-green-50/50 transition-all duration-300 group-hover:bg-green-50"
                       placeholder="e.g., Chocolate Fudge Delight"
@@ -236,9 +241,12 @@ export default function EditProductPage() {
                         type="number"
                         step="0.01"
                         min="0"
-                        {...register('price', { 
-                          required: 'Please set a price',
-                          min: { value: 0.01, message: 'Price must be greater than 0' }
+                        {...register("price", {
+                          required: "Please set a price",
+                          min: {
+                            value: 0.01,
+                            message: "Price must be greater than 0",
+                          },
                         })}
                         className="input border-green-200 focus:border-green-400 focus:ring-green-300 bg-green-50/50 transition-all duration-300 group-hover:bg-green-50"
                         placeholder="0.00"
@@ -259,7 +267,9 @@ export default function EditProductPage() {
                     </label>
                     <div className="flex gap-2">
                       <select
-                        {...register('category', { required: 'Please select a category' })}
+                        {...register("category", {
+                          required: "Please select a category",
+                        })}
                         className="input border-green-200 focus:border-green-400 focus:ring-green-300 bg-green-50/50 transition-all duration-300 group-hover:bg-green-50 flex-1"
                       >
                         <option value="">Choose category...</option>
@@ -273,7 +283,7 @@ export default function EditProductPage() {
                         type="button"
                         variant="outline"
                         size="md"
-                        onClick={() => router.push('/categories/manage')}
+                        onClick={() => router.push("/categories/manage")}
                         className="px-4 bg-white/80 hover:bg-white border-green-200 text-green-700 hover:text-green-800"
                       >
                         <Plus className="h-4 w-4" />
@@ -295,7 +305,7 @@ export default function EditProductPage() {
                       <Camera className="h-5 w-5 text-green-600" />
                       Cake Photo
                     </label>
-                    
+
                     <div className="mt-2">
                       {imagePreview ? (
                         <div className="relative">
@@ -318,9 +328,12 @@ export default function EditProductPage() {
                         <label className="cursor-pointer group">
                           <div className="w-full h-64 border-4 border-dashed border-green-300 rounded-2xl flex flex-col items-center justify-center bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 transition-all duration-300 group-hover:border-green-400 group-hover:shadow-lg">
                             <Upload className="h-12 w-12 text-green-400 mb-4 group-hover:text-green-500 transition-colors duration-300" />
-                            <p className="text-green-600 font-semibold mb-2">Upload Cake Photo</p>
+                            <p className="text-green-600 font-semibold mb-2">
+                              Upload Cake Photo
+                            </p>
                             <p className="text-green-500 text-sm text-center px-4">
-                              Click to select or drag and drop your delicious cake photo here
+                              Click to select or drag and drop your delicious
+                              cake photo here
                             </p>
                           </div>
                           <input
@@ -341,7 +354,7 @@ export default function EditProductPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => router.push('/products')}
+                  onClick={() => router.push("/products")}
                   className="flex-1 border-green-200 text-green-700 hover:bg-green-50 hover:border-green-300"
                   disabled={isSubmitting}
                 >
