@@ -95,21 +95,17 @@ function WhatsAppSendSection({
         return;
       }
 
-      // Use production URL if available, otherwise use current origin
-      const baseUrl =
-        process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
-      const billViewUrl = `${baseUrl}/bill/${billId}`;
+      // Create message with PDF link only
+      let messageText = `Hi ${customerName}! 🎂\n\nThank you for choosing CakeRaft!\n\nYour invoice is ready for download:`;
 
-      // Create SHORT message that works with WhatsApp URL limits
-      let messageText = `Hi ${customerName}! Your CakeRaft invoice is ready.`;
-
-      // Add PDF download link if available (MOST IMPORTANT!)
+      // Add PDF download link if available
       if (pdfUrl) {
-        messageText += `\n\nDownload PDF: ${pdfUrl}`;
+        messageText += `\n\n📄 Download Invoice:\n${pdfUrl}`;
+      } else {
+        messageText += `\n\nYour invoice will be sent shortly.`;
       }
 
-      // Add web view link as backup
-      messageText += `\n\nView Online: ${billViewUrl}`;
+      messageText += `\n\nFor any queries, feel free to contact us.\n\nCakeRaft - Artisan Cake Creations ✨`;
 
       const formattedPhone = phoneNumber.replace(/[^0-9]/g, "");
 
