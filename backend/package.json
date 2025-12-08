@@ -19,6 +19,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@supabase/supabase-js": "^2.86.2",
     "axios": "^1.13.2",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^1.41.3",

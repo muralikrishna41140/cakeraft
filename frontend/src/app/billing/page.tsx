@@ -69,27 +69,93 @@ function WhatsAppSendSection({
       setSendStatus("idle");
       setErrorMessage("");
 
-      const response = await billsAPI.sendWhatsApp(billId, phoneNumber.trim());
+      // Skip API - Directly use WhatsApp Web with PDF link
+      console.log("📱 Preparing WhatsApp Web message with PDF link...");
+      console.log("Bill ID:", billId);
+      console.log("Phone:", phoneNumber.trim());
 
-      if (response.data.success) {
-        setSendStatus("success");
-        toast.success("Bill sent successfully via WhatsApp! 📱");
-      } else {
-        setSendStatus("error");
-        setErrorMessage(response.data.message || "Failed to send bill");
-        toast.error(
-          response.data.message || "Failed to send bill via WhatsApp"
-        );
+      toast.loading("Preparing WhatsApp message with PDF link...", {
+        id: "whatsapp-send",
+      });
+
+      // Get the bill details to fetch Supabase PDF URL
+      let pdfUrl = "";
+      try {
+        const billResponse = await billsAPI.getBill(billId);
+        if (billResponse.data?.data?.supabaseUrl) {
+          pdfUrl = billResponse.data.data.supabaseUrl;
+          console.log("✅ PDF URL found:", pdfUrl);
+        } else {
+          console.warn("⚠️ No PDF URL found in bill record");
+        }
+      } catch (err) {
+        console.error("❌ Could not fetch bill PDF URL:", err);
+        toast.error("Could not fetch bill details", { id: "whatsapp-send" });
+        setIsSending(false);
+        return;
       }
+
+      // Use production URL if available, otherwise use current origin
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+      const billViewUrl = `${baseUrl}/bill/${billId}`;
+
+      // Create SHORT message that works with WhatsApp URL limits
+      let messageText = `Hi ${customerName}! Your CakeRaft invoice is ready.`;
+
+      // Add PDF download link if available (MOST IMPORTANT!)
+      if (pdfUrl) {
+        messageText += `\n\nDownload PDF: ${pdfUrl}`;
+      }
+
+      // Add web view link as backup
+      messageText += `\n\nView Online: ${billViewUrl}`;
+
+      const formattedPhone = phoneNumber.replace(/[^0-9]/g, "");
+
+      // Use wa.me format with simple encoding
+      const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(
+        messageText
+      )}`;
+
+      console.log("📱 WhatsApp URL generated (NEW):");
+      console.log("Message text:", messageText);
+      console.log("PDF URL included:", !!pdfUrl);
+      console.log("PDF URL:", pdfUrl || "NOT AVAILABLE");
+      console.log("Full URL:", whatsappUrl);
+
+      // Copy message to clipboard as backup
+      try {
+        await navigator.clipboard.writeText(messageText);
+        console.log("✅ Message copied to clipboard!");
+      } catch (e) {
+        console.warn("Could not copy to clipboard:", e);
+      }
+
+      // Open WhatsApp Web - try multiple approaches
+      const opened = window.open(whatsappUrl, "_blank");
+
+      if (!opened) {
+        // If popup blocked, try direct navigation
+        console.warn("Popup blocked, trying alternative method...");
+        window.location.href = whatsappUrl;
+      }
+
+      setSendStatus("success");
+      const successMsg = pdfUrl
+        ? "📱 WhatsApp opened! Message copied to clipboard. Paste if needed."
+        : "📱 WhatsApp opened! Message copied to clipboard.";
+      toast.success(successMsg, {
+        id: "whatsapp-send",
+        duration: 6000,
+      });
     } catch (error: any) {
-      console.error("WhatsApp send error:", error);
+      console.error("❌ Error preparing WhatsApp message:", error);
       setSendStatus("error");
-      const errorMsg =
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to send WhatsApp message";
-      setErrorMessage(errorMsg);
-      toast.error(errorMsg);
+      setErrorMessage(error.message || "Failed to prepare WhatsApp message");
+      toast.error("Failed to prepare WhatsApp message", {
+        id: "whatsapp-send",
+      });
     } finally {
       setIsSending(false);
     }
@@ -141,15 +207,24 @@ function WhatsAppSendSection({
 
             {/* Status Messages */}
             {sendStatus === "success" && (
-              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                 <div className="flex items-center gap-2 text-green-700">
                   <CheckCircle className="h-4 w-4" />
                   <span className="text-sm font-medium">
-                    Bill sent successfully!
+                    WhatsApp opened! Message copied to clipboard ✓
                   </span>
                 </div>
-                <p className="text-xs text-green-600 mt-1">
-                  The customer will receive a professional PDF bill on WhatsApp.
+                <p className="text-xs text-green-600 mt-2 leading-relaxed">
+                  <strong>Important:</strong> When WhatsApp opens, if the
+                  message field is empty:
+                  <br />• Press{" "}
+                  <kbd className="px-1 py-0.5 bg-white border border-green-300 rounded text-xs">
+                    Ctrl+V
+                  </kbd>{" "}
+                  to paste the message
+                  <br />
+                  • The message includes the PDF download link
+                  <br />• Then click Send in WhatsApp
                 </p>
               </div>
             )}
@@ -567,7 +642,7 @@ export default function BillingPage() {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto py-3 sm:py-6 px-2 sm:px-4 lg:px-8 pb-24 sm:pb-28">
+        <div className="max-w-7xl mx-auto py-3 sm:py-6 px-2 sm:px-4 lg:px-8 pb-32 sm:pb-36">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6">
             {/* Products Section */}
             <div className="lg:col-span-2">
@@ -1232,7 +1307,7 @@ export default function BillingPage() {
 
         {/* Checkout Success Modal */}
         {checkoutSuccess && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[60]">
             <div className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl max-h-[90vh] overflow-y-auto">
               {/* Header with CakeRaft Branding */}
               <div className="bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 p-6 rounded-t-2xl text-white relative overflow-hidden">
@@ -1553,14 +1628,14 @@ export default function BillingPage() {
         )}
 
         {/* Fixed Checkout Button at Bottom */}
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t-2 border-pink-200 shadow-2xl">
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t-2 border-green-200 shadow-2xl">
           <div className="max-w-7xl mx-auto px-4 py-3 sm:py-4">
             <div className="flex items-center justify-between gap-4">
               <div className="flex flex-col">
                 <span className="text-xs text-gray-500 font-medium">
                   Total Amount
                 </span>
-                <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
+                <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
                   ₹{getTotalAmount().toFixed(2)}
                 </span>
               </div>
@@ -1568,7 +1643,7 @@ export default function BillingPage() {
                 variant="primary"
                 onClick={() => setShowCheckout(true)}
                 disabled={cart.length === 0}
-                className="flex items-center gap-2 text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 hover:from-pink-600 hover:via-rose-600 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all"
+                className="flex items-center gap-2 text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 hover:from-green-600 hover:via-emerald-600 hover:to-green-700 shadow-lg hover:shadow-xl transition-all"
               >
                 <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6" />
                 <span>Checkout ({getTotalItems()})</span>

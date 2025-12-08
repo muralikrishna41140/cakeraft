@@ -1,15 +1,15 @@
-import axios from 'axios';
-import FormData from 'form-data';
-import fs from 'fs';
-import path from 'path';
+import axios from "axios";
+import FormData from "form-data";
+import fs from "fs";
+import path from "path";
 
 class WhatsAppService {
   constructor() {
     this.initialized = false;
     this.apiToken = null;
     this.phoneNumberId = null;
-    this.baseUrl = 'https://graph.facebook.com/v18.0';
-    this.testMode = process.env.WHATSAPP_TEST_MODE === 'true';
+    this.baseUrl = "https://graph.facebook.com/v18.0";
+    this.testMode = process.env.WHATSAPP_TEST_MODE === "true";
   }
 
   // Lazy initialization to ensure environment variables are loaded
@@ -18,11 +18,13 @@ class WhatsAppService {
       this.apiToken = process.env.WHATSAPP_API_TOKEN;
       this.phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
       this.initialized = true;
-      
+
       if (!this.apiToken || !this.phoneNumberId) {
-        console.warn('⚠️ WhatsApp API credentials not configured. PDF sending will be disabled.');
+        console.warn(
+          "⚠️ WhatsApp API credentials not configured. PDF sending will be disabled."
+        );
       } else {
-        console.log('✅ WhatsApp API credentials loaded successfully.');
+        console.log("✅ WhatsApp API credentials loaded successfully.");
       }
     }
   }
@@ -34,18 +36,18 @@ class WhatsAppService {
    */
   formatPhoneNumber(phoneNumber) {
     // Remove all non-digit characters
-    let cleaned = phoneNumber.replace(/\D/g, '');
-    
+    let cleaned = phoneNumber.replace(/\D/g, "");
+
     // Add country code if not present (assuming India +91)
     if (cleaned.length === 10) {
-      cleaned = '91' + cleaned;
+      cleaned = "91" + cleaned;
     }
-    
+
     // Ensure it starts with country code
-    if (!cleaned.startsWith('91') && cleaned.length === 12) {
-      cleaned = '91' + cleaned.slice(-10);
+    if (!cleaned.startsWith("91") && cleaned.length === 12) {
+      cleaned = "91" + cleaned.slice(-10);
     }
-    
+
     return cleaned;
   }
 
@@ -57,13 +59,13 @@ class WhatsAppService {
   async uploadPDFToWhatsApp(filePath) {
     try {
       if (!this.apiToken || !this.phoneNumberId) {
-        throw new Error('WhatsApp API credentials not configured');
+        throw new Error("WhatsApp API credentials not configured");
       }
 
       const form = new FormData();
-      form.append('file', fs.createReadStream(filePath));
-      form.append('type', 'application/pdf');
-      form.append('messaging_product', 'whatsapp');
+      form.append("file", fs.createReadStream(filePath));
+      form.append("type", "application/pdf");
+      form.append("messaging_product", "whatsapp");
 
       const response = await axios.post(
         `${this.baseUrl}/${this.phoneNumberId}/media`,
@@ -71,7 +73,7 @@ class WhatsAppService {
         {
           headers: {
             ...form.getHeaders(),
-            'Authorization': `Bearer ${this.apiToken}`,
+            Authorization: `Bearer ${this.apiToken}`,
           },
           timeout: 30000, // 30 seconds timeout
         }
@@ -80,21 +82,36 @@ class WhatsAppService {
       if (response.data && response.data.id) {
         return response.data.id;
       } else {
-        throw new Error('Failed to upload PDF to WhatsApp: No media ID returned');
+        throw new Error(
+          "Failed to upload PDF to WhatsApp: No media ID returned"
+        );
       }
     } catch (error) {
-      console.error('Error uploading PDF to WhatsApp:', error.response?.data || error.message);
-      
+      console.error(
+        "Error uploading PDF to WhatsApp:",
+        error.response?.data || error.message
+      );
+
       // Handle specific error cases
       if (error.response?.status === 401) {
-        throw new Error('WhatsApp API token has expired. Please update your access token.');
+        throw new Error(
+          "WhatsApp API token has expired. Please update your access token."
+        );
       } else if (error.response?.status === 400) {
-        throw new Error('WhatsApp API error: Invalid request or phone number format.');
+        throw new Error(
+          "WhatsApp API error: Invalid request or phone number format."
+        );
       } else if (error.response?.status === 403) {
-        throw new Error('WhatsApp API access denied. Check your permissions and phone number verification.');
+        throw new Error(
+          "WhatsApp API access denied. Check your permissions and phone number verification."
+        );
       }
-      
-      throw new Error(`WhatsApp upload failed: ${error.response?.data?.error?.message || error.message}`);
+
+      throw new Error(
+        `WhatsApp upload failed: ${
+          error.response?.data?.error?.message || error.message
+        }`
+      );
     }
   }
 
@@ -106,24 +123,29 @@ class WhatsAppService {
    * @param {string} filename - Original filename for the document
    * @returns {Promise<Object>} - WhatsApp API response
    */
-  async sendPDFMessage(phoneNumber, mediaId, caption = '', filename = 'bill.pdf') {
+  async sendPDFMessage(
+    phoneNumber,
+    mediaId,
+    caption = "",
+    filename = "bill.pdf"
+  ) {
     try {
       if (!this.apiToken || !this.phoneNumberId) {
-        throw new Error('WhatsApp API credentials not configured');
+        throw new Error("WhatsApp API credentials not configured");
       }
 
       const formattedPhone = this.formatPhoneNumber(phoneNumber);
-      
+
       const messageData = {
-        messaging_product: 'whatsapp',
-        recipient_type: 'individual',
+        messaging_product: "whatsapp",
+        recipient_type: "individual",
         to: formattedPhone,
-        type: 'document',
+        type: "document",
         document: {
           id: mediaId,
           caption: caption,
-          filename: filename
-        }
+          filename: filename,
+        },
       };
 
       const response = await axios.post(
@@ -131,27 +153,110 @@ class WhatsAppService {
         messageData,
         {
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.apiToken}`,
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.apiToken}`,
           },
           timeout: 30000, // 30 seconds timeout
         }
       );
 
+      // Log detailed response for debugging
+      console.log(
+        "📨 WhatsApp API Response:",
+        JSON.stringify(response.data, null, 2)
+      );
+      console.log("✅ Message ID:", response.data.messages?.[0]?.id);
+      console.log(
+        "📱 WhatsApp ID:",
+        response.data.messages?.[0]?.message_status
+      );
+
       return response.data;
     } catch (error) {
-      console.error('Error sending WhatsApp message:', error.response?.data || error.message);
-      
+      console.error(
+        "Error sending WhatsApp message:",
+        error.response?.data || error.message
+      );
+
       // Handle specific error cases
       if (error.response?.status === 401) {
-        throw new Error('WhatsApp API token has expired. Please update your access token.');
+        throw new Error(
+          "WhatsApp API token has expired. Please update your access token."
+        );
       } else if (error.response?.status === 400) {
-        throw new Error('Invalid phone number or message format.');
+        throw new Error("Invalid phone number or message format.");
       } else if (error.response?.status === 403) {
-        throw new Error('WhatsApp API access denied. Check your permissions.');
+        throw new Error("WhatsApp API access denied. Check your permissions.");
       }
-      
-      throw new Error(`WhatsApp send failed: ${error.response?.data?.error?.message || error.message}`);
+
+      throw new Error(
+        `WhatsApp send failed: ${
+          error.response?.data?.error?.message || error.message
+        }`
+      );
+    }
+  }
+
+  /**
+   * Send a template message via WhatsApp
+   * @param {string} phoneNumber - Recipient phone number
+   * @param {string} templateName - Template name (e.g., 'hello_world')
+   * @returns {Promise<Object>} - WhatsApp API response
+   */
+  async sendTemplateMessage(phoneNumber, templateName = "hello_world") {
+    try {
+      if (!this.apiToken || !this.phoneNumberId) {
+        throw new Error("WhatsApp API credentials not configured");
+      }
+
+      const formattedPhone = this.formatPhoneNumber(phoneNumber);
+
+      const messageData = {
+        messaging_product: "whatsapp",
+        to: formattedPhone,
+        type: "template",
+        template: {
+          name: templateName,
+          language: {
+            code: "en_US",
+          },
+        },
+      };
+
+      console.log(
+        "📤 Sending template message:",
+        templateName,
+        "to:",
+        formattedPhone
+      );
+
+      const response = await axios.post(
+        `https://graph.facebook.com/v22.0/${this.phoneNumberId}/messages`,
+        messageData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.apiToken}`,
+          },
+          timeout: 30000,
+        }
+      );
+
+      console.log("✅ Template message sent successfully!");
+      console.log("📨 Response:", JSON.stringify(response.data, null, 2));
+
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error sending template message:",
+        error.response?.data || error.message
+      );
+
+      throw new Error(
+        `Template message failed: ${
+          error.response?.data?.error?.message || error.message
+        }`
+      );
     }
   }
 
@@ -164,19 +269,19 @@ class WhatsAppService {
   async sendTextMessage(phoneNumber, message) {
     try {
       if (!this.apiToken || !this.phoneNumberId) {
-        throw new Error('WhatsApp API credentials not configured');
+        throw new Error("WhatsApp API credentials not configured");
       }
 
       const formattedPhone = this.formatPhoneNumber(phoneNumber);
-      
+
       const messageData = {
-        messaging_product: 'whatsapp',
-        recipient_type: 'individual',
+        messaging_product: "whatsapp",
+        recipient_type: "individual",
         to: formattedPhone,
-        type: 'text',
+        type: "text",
         text: {
-          body: message
-        }
+          body: message,
+        },
       };
 
       const response = await axios.post(
@@ -184,8 +289,8 @@ class WhatsAppService {
         messageData,
         {
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.apiToken}`,
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.apiToken}`,
           },
           timeout: 30000,
         }
@@ -193,24 +298,28 @@ class WhatsAppService {
 
       return response.data;
     } catch (error) {
-      console.error('Error sending WhatsApp text:', error.response?.data || error.message);
-      
-      let errorMessage = 'WhatsApp text send failed';
-      
+      console.error(
+        "Error sending WhatsApp text:",
+        error.response?.data || error.message
+      );
+
+      let errorMessage = "WhatsApp text send failed";
+
       if (error.response?.data?.error) {
         const whatsappError = error.response.data.error;
-        
+
         if (whatsappError.code === 131030) {
           errorMessage = `Phone number not in WhatsApp allowed list. Please add the recipient to your WhatsApp Business API recipient list.`;
         } else if (whatsappError.code === 190) {
-          errorMessage = 'WhatsApp API token has expired. Please update your token.';
+          errorMessage =
+            "WhatsApp API token has expired. Please update your token.";
         } else if (whatsappError.message) {
           errorMessage = `WhatsApp API Error: ${whatsappError.message}`;
         }
       } else if (error.message) {
         errorMessage = error.message;
       }
-      
+
       throw new Error(errorMessage);
     }
   }
@@ -225,89 +334,126 @@ class WhatsAppService {
   async sendBillPDF(phoneNumber, pdfFilePath, billData) {
     try {
       this._init(); // Ensure initialization
-      
+
       // Test mode simulation
       if (this.testMode) {
-        console.log('📧 TEST MODE: Simulating WhatsApp bill sending...');
+        console.log("📧 TEST MODE: Simulating WhatsApp bill sending...");
         console.log(`📱 Would send to: ${phoneNumber}`);
         console.log(`📄 PDF file: ${pdfFilePath}`);
-        
+
         // Simulate a short delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
         return {
           success: true,
           messageId: `test_msg_${Date.now()}`,
           whatsappId: phoneNumber,
-          message: 'Bill sent successfully via WhatsApp (TEST MODE)',
-          testMode: true
+          message: "Bill sent successfully via WhatsApp (TEST MODE)",
+          testMode: true,
         };
       }
-      
+
       if (!this.apiToken || !this.phoneNumberId) {
         return {
           success: false,
-          error: 'WhatsApp API not configured. Please contact admin.'
+          error: "WhatsApp API not configured. Please contact admin.",
         };
       }
 
+      // Step 0: Send template message first to initiate conversation
+      console.log(
+        "📨 Step 1: Sending template message to open conversation..."
+      );
+      try {
+        await this.sendTemplateMessage(phoneNumber, "hello_world");
+        console.log("✅ Template message sent - conversation window opened!");
+        // Wait 3 seconds for template to be delivered and conversation to open
+        console.log("⏳ Waiting 3 seconds for conversation window to open...");
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+      } catch (templateError) {
+        console.warn(
+          "⚠️ Template message failed, trying direct PDF send:",
+          templateError.message
+        );
+        // Continue anyway - maybe the conversation is already open
+      }
+
       // Step 1: Upload PDF to WhatsApp
-      console.log('📤 Uploading PDF to WhatsApp...');
+      console.log("📤 Step 2: Uploading PDF to WhatsApp servers...");
       const mediaId = await this.uploadPDFToWhatsApp(pdfFilePath);
-      console.log('✅ PDF uploaded successfully, Media ID:', mediaId);
+      console.log("✅ PDF uploaded successfully, Media ID:", mediaId);
 
       // Step 2: Prepare message caption
-      const customerName = billData.customerInfo?.name || 'Valued Customer';
+      const customerName = billData.customerInfo?.name || "Valued Customer";
       const billNumber = billData.billNumber || billData._id;
       const total = billData.total || 0;
-      
-      const caption = `🎂 *CakeRaft* - Invoice\n\n` +
-                     `Dear ${customerName},\n\n` +
-                     `Thank you for your order! 💖\n\n` +
-                     `📋 *Bill #:* ${billNumber}\n` +
-                     `💰 *Total:* ₹${total.toFixed(2)}\n` +
-                     `📅 *Date:* ${new Date(billData.createdAt).toLocaleDateString('en-IN')}\n\n` +
-                     `Your artisan cakes are being crafted with passion! 🧁\n\n` +
-                     `For any questions, feel free to contact us.\n\n` +
-                     `*CakeRaft Team* 🎂`;
+
+      const caption =
+        `🎂 *CakeRaft* - Invoice\n\n` +
+        `Dear ${customerName},\n\n` +
+        `Thank you for your order! 💖\n\n` +
+        `📋 *Bill #:* ${billNumber}\n` +
+        `💰 *Total:* ₹${total.toFixed(2)}\n` +
+        `📅 *Date:* ${new Date(billData.createdAt).toLocaleDateString(
+          "en-IN"
+        )}\n\n` +
+        `Your artisan cakes are being crafted with passion! 🧁\n\n` +
+        `For any questions, feel free to contact us.\n\n` +
+        `*CakeRaft Team* 🎂`;
 
       // Step 3: Send PDF via WhatsApp
-      console.log('📱 Sending PDF via WhatsApp to:', phoneNumber);
-      const filename = `SweetCreations_Bill_${billNumber}.pdf`;
-      const result = await this.sendPDFMessage(phoneNumber, mediaId, caption, filename);
-      
-      console.log('✅ Bill sent successfully via WhatsApp!');
-      
+      console.log(
+        "📱 Step 3: Sending PDF document via WhatsApp to:",
+        phoneNumber
+      );
+      const filename = `CakeRaft_Bill_${billNumber}.pdf`;
+      const result = await this.sendPDFMessage(
+        phoneNumber,
+        mediaId,
+        caption,
+        filename
+      );
+
+      console.log("✅ ✅ ✅ SUCCESS! Bill PDF sent successfully via WhatsApp!");
+      console.log("📬 Message Details:", {
+        messageId: result.messages?.[0]?.id,
+        recipientId: result.contacts?.[0]?.wa_id,
+        status: "Delivered to WhatsApp",
+      });
+      console.log(
+        "📱 Customer should receive: 1) Template message + 2) Bill PDF with invoice details"
+      );
+
       return {
         success: true,
         messageId: result.messages?.[0]?.id,
         whatsappId: result.messages?.[0]?.wa_id,
-        message: 'Bill sent successfully via WhatsApp'
+        message: "Bill sent successfully via WhatsApp",
       };
-
     } catch (error) {
-      console.error('❌ Error sending bill via WhatsApp:', error);
-      
-      let errorMessage = 'Failed to send bill via WhatsApp';
-      
+      console.error("❌ Error sending bill via WhatsApp:", error);
+
+      let errorMessage = "Failed to send bill via WhatsApp";
+
       // Handle specific WhatsApp API errors
       if (error.response?.data?.error) {
         const whatsappError = error.response.data.error;
-        
+
         if (whatsappError.code === 131030) {
           errorMessage = `Phone number not in WhatsApp allowed list. Please add ${phoneNumber} to your WhatsApp Business API recipient list in Facebook Developers Console.`;
         } else if (whatsappError.code === 190) {
-          errorMessage = 'WhatsApp API token has expired. Please update your token.';
+          errorMessage =
+            "WhatsApp API token has expired. Please update your token.";
         } else if (whatsappError.message) {
           errorMessage = `WhatsApp API Error: ${whatsappError.message}`;
         }
       } else if (error.message) {
         errorMessage = error.message;
       }
-      
+
       return {
         success: false,
-        error: errorMessage
+        error: errorMessage,
       };
     }
   }
@@ -328,9 +474,9 @@ class WhatsAppService {
   getStatus() {
     return {
       configured: this.isConfigured(),
-      apiToken: this.apiToken ? '✅ Set' : '❌ Missing',
-      phoneNumberId: this.phoneNumberId ? '✅ Set' : '❌ Missing',
-      baseUrl: this.baseUrl
+      apiToken: this.apiToken ? "✅ Set" : "❌ Missing",
+      phoneNumberId: this.phoneNumberId ? "✅ Set" : "❌ Missing",
+      baseUrl: this.baseUrl,
     };
   }
 }
