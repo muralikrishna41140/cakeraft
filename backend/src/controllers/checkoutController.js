@@ -165,26 +165,48 @@ export const createCheckout = async (req, res) => {
       customerInfo.phone
     );
 
-    // Auto-upload PDF to Supabase (async, don't wait for it)
-    uploadBillToSupabase(populatedBill).catch((error) => {
-      console.error("❌ Failed to upload bill to Supabase:", error);
-    });
-
-    res.status(201).json({
-      success: true,
-      message: "Checkout completed successfully!",
-      data: populatedBill,
-      loyalty: {
-        applied: loyaltyDiscount.loyaltyApplied,
-        discountAmount: loyaltyDiscountAmount,
-        discountPercentage: loyaltyDiscount.discountPercentage,
-        message: loyaltyDiscount.message,
-        nextDiscountAt: updatedLoyaltyStatus.nextDiscountAt,
-        purchaseNumber:
-          loyaltyDiscount.purchaseNumber ||
-          updatedLoyaltyStatus.nextPurchaseNumber,
-      },
-    });
+    // Upload PDF to Supabase and wait for it to complete
+    try {
+      await uploadBillToSupabase(populatedBill);
+      // Refresh the bill to get the updated supabaseUrl
+      const billWithUrl = await Bill.findById(bill._id).populate(
+        "items.productId",
+        "name description category"
+      );
+      res.status(201).json({
+        success: true,
+        message: "Checkout completed successfully!",
+        data: billWithUrl,
+        loyalty: {
+          applied: loyaltyDiscount.loyaltyApplied,
+          discountAmount: loyaltyDiscountAmount,
+          discountPercentage: loyaltyDiscount.discountPercentage,
+          message: loyaltyDiscount.message,
+          nextDiscountAt: updatedLoyaltyStatus.nextDiscountAt,
+          purchaseNumber:
+            loyaltyDiscount.purchaseNumber ||
+            updatedLoyaltyStatus.nextPurchaseNumber,
+        },
+      });
+    } catch (uploadError) {
+      console.error("❌ Failed to upload bill to Supabase:", uploadError);
+      // Still return success, but without PDF URL
+      res.status(201).json({
+        success: true,
+        message: "Checkout completed successfully!",
+        data: populatedBill,
+        loyalty: {
+          applied: loyaltyDiscount.loyaltyApplied,
+          discountAmount: loyaltyDiscountAmount,
+          discountPercentage: loyaltyDiscount.discountPercentage,
+          message: loyaltyDiscount.message,
+          nextDiscountAt: updatedLoyaltyStatus.nextDiscountAt,
+          purchaseNumber:
+            loyaltyDiscount.purchaseNumber ||
+            updatedLoyaltyStatus.nextPurchaseNumber,
+        },
+      });
+    }
   } catch (error) {
     await session.abortTransaction();
     console.error("Checkout error:", error);
