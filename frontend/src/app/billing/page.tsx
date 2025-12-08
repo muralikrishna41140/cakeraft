@@ -78,44 +78,25 @@ function WhatsAppSendSection({
         id: "whatsapp-send",
       });
 
-      // Wait a moment for Supabase upload to complete (it happens async after bill creation)
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Get the bill details to fetch Supabase PDF URL - with retry
+      // Get the bill details to fetch Supabase PDF URL
       let pdfUrl = "";
-      let retries = 3;
+      try {
+        const billResponse = await billsAPI.getBill(billId);
+        console.log("📦 Full Bill Response:", billResponse.data);
 
-      while (retries > 0 && !pdfUrl) {
-        try {
-          const billResponse = await billsAPI.getBill(billId);
-          console.log("📦 Full Bill Response:", billResponse.data);
-
-          // Try different possible locations for supabaseUrl
-          if (billResponse.data?.supabaseUrl) {
-            pdfUrl = billResponse.data.supabaseUrl;
-            console.log("✅ PDF URL found (direct):", pdfUrl);
-          } else if (billResponse.data?.data?.supabaseUrl) {
-            pdfUrl = billResponse.data.data.supabaseUrl;
-            console.log("✅ PDF URL found (nested):", pdfUrl);
-          } else if (billResponse.data?.bill?.supabaseUrl) {
-            pdfUrl = billResponse.data.bill.supabaseUrl;
-            console.log("✅ PDF URL found (bill):", pdfUrl);
-          } else {
-            console.warn(`⚠️ No PDF URL found (attempt ${4 - retries}/3)`);
-            retries--;
-            if (retries > 0) {
-              await new Promise((resolve) => setTimeout(resolve, 1000));
-            }
-          }
-        } catch (err) {
-          console.error("❌ Could not fetch bill PDF URL:", err);
-          toast.error("Could not fetch bill details", { id: "whatsapp-send" });
-          setIsSending(false);
-          return;
+        // Extract supabaseUrl from response
+        if (billResponse.data?.data?.supabaseUrl) {
+          pdfUrl = billResponse.data.data.supabaseUrl;
+          console.log("✅ PDF URL found:", pdfUrl);
+        } else {
+          console.warn("⚠️ No PDF URL in bill record");
         }
-      }
-
-      // Create message with PDF link only
+      } catch (err) {
+        console.error("❌ Could not fetch bill PDF URL:", err);
+        toast.error("Could not fetch bill details", { id: "whatsapp-send" });
+        setIsSending(false);
+        return;
+      } // Create message with PDF link only
       let messageText = `Hi ${customerName}! 🎂\n\nThank you for choosing CakeRaft!\n\nYour invoice is ready for download:`;
 
       // Add PDF download link if available
