@@ -19,7 +19,7 @@ export default function PublicBillPage() {
   const fetchBill = async () => {
     try {
       setLoading(true);
-      const response = await billsAPI.getById(billId);
+      const response = await billsAPI.getBill(billId);
       setBill(response.data);
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to load bill");
