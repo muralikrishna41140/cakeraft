@@ -322,23 +322,17 @@ class PDFGenerationService {
     const boxY = doc.y;
     const pageWidth = doc.page.width;
 
-    // Loyalty rewards box with celebratory styling - increased height
-    doc.rect(50, boxY, pageWidth - 100, 85).fillAndStroke("#f0fdf4", "#10b981");
+    // Loyalty rewards box with celebratory styling - increased height for better spacing
+    doc.rect(50, boxY, pageWidth - 100, 95).fillAndStroke("#f0fdf4", "#10b981");
 
-    // Add decorative emoji
+    // Title with emoji inline - better spacing
     doc
-      .fontSize(20)
-      .fillColor("#10b981")
-      .text("🎉", 60, boxY + 32);
-
-    // Title
-    doc
-      .fontSize(12)
+      .fontSize(13)
       .fillColor("#16a34a")
       .font("Helvetica-Bold")
-      .text("LOYALTY REWARD APPLIED!", 90, boxY + 15);
+      .text("🎉 LOYALTY REWARD APPLIED!", 65, boxY + 15);
 
-    // Message
+    // Message with proper width constraint
     const message =
       loyaltyInfo.message ||
       "Congratulations! You received a loyalty discount.";
@@ -346,25 +340,26 @@ class PDFGenerationService {
       .fontSize(9)
       .fillColor("#15803d")
       .font("Helvetica")
-      .text(message, 90, boxY + 35, {
-        width: pageWidth - 160,
-        lineGap: 2,
+      .text(message, 65, boxY + 38, {
+        width: pageWidth - 130,
+        lineGap: 3,
       });
 
-    // Discount amount highlight
+    // Discount amount highlight - moved down for better spacing
+    const savingsText = `You Saved:  Rs. ${(
+      loyaltyInfo.discountAmount || 0
+    ).toFixed(2)} (${loyaltyInfo.discountPercentage || 0}%)`;
+
     doc
-      .fontSize(10)
+      .fontSize(11)
       .fillColor("#16a34a")
       .font("Helvetica-Bold")
-      .text(
-        `You Saved: ₹${(loyaltyInfo.discountAmount || 0).toFixed(2)} (${
-          loyaltyInfo.discountPercentage || 0
-        }%)`,
-        90,
-        boxY + 60
-      );
+      .text(savingsText, 65, boxY + 65, {
+        width: pageWidth - 130,
+        lineGap: 3,
+      });
 
-    doc.y = boxY + 100;
+    doc.y = boxY + 110;
   }
 
   /**
