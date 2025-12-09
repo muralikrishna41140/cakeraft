@@ -51,7 +51,10 @@ function WhatsAppSendSection({
   customerName,
 }: WhatsAppSendSectionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState(customerPhone || "+91");
+  const [countryCode, setCountryCode] = useState("+91");
+  const [phoneNumber, setPhoneNumber] = useState(
+    customerPhone ? customerPhone.replace(/^\+\d+/, "") : ""
+  );
   const [isSending, setIsSending] = useState(false);
   const [sendStatus, setSendStatus] = useState<"idle" | "success" | "error">(
     "idle"
@@ -59,6 +62,8 @@ function WhatsAppSendSection({
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleSendWhatsApp = async () => {
+    const fullPhoneNumber = `${countryCode}${phoneNumber.trim()}`;
+
     if (!phoneNumber?.trim() || !billId) {
       toast.error("Phone number and bill ID are required");
       return;
@@ -72,7 +77,7 @@ function WhatsAppSendSection({
       // Skip API - Directly use WhatsApp Web with PDF link
       console.log("📱 Preparing WhatsApp Web message with PDF link...");
       console.log("Bill ID:", billId);
-      console.log("Phone:", phoneNumber.trim());
+      console.log("Phone:", fullPhoneNumber);
 
       toast.loading("Preparing WhatsApp message with PDF link...", {
         id: "whatsapp-send",
@@ -108,7 +113,7 @@ function WhatsAppSendSection({
 
       messageText += `\n\nFor any queries, feel free to contact us.\n\nCakeRaft - Artisan Cake Creations ✨`;
 
-      const formattedPhone = phoneNumber.replace(/[^0-9]/g, "");
+      const formattedPhone = fullPhoneNumber.replace(/[^0-9]/g, "");
 
       // Use wa.me format with simple encoding
       const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(
@@ -181,24 +186,54 @@ function WhatsAppSendSection({
       {isExpanded && (
         <div className="p-4 bg-white border-t border-green-200">
           <div className="space-y-4">
-            {/* Phone Input */}
+            {/* Phone Input with Country Code */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 WhatsApp Phone Number
               </label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="tel"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="+919876543210"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  disabled={isSending}
-                />
+              <div className="flex gap-2">
+                {/* Country Code Dropdown */}
+                <div className="relative w-32">
+                  <select
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none bg-white"
+                    disabled={isSending}
+                  >
+                    <option value="+91">🇮🇳 +91</option>
+                    <option value="+1">🇺🇸 +1</option>
+                    <option value="+44">🇬🇧 +44</option>
+                    <option value="+971">🇦🇪 +971</option>
+                    <option value="+61">🇦🇺 +61</option>
+                    <option value="+86">🇨🇳 +86</option>
+                    <option value="+33">🇫🇷 +33</option>
+                    <option value="+49">🇩🇪 +49</option>
+                    <option value="+81">🇯🇵 +81</option>
+                    <option value="+82">🇰🇷 +82</option>
+                    <option value="+65">🇸🇬 +65</option>
+                    <option value="+60">🇲🇾 +60</option>
+                  </select>
+                </div>
+
+                {/* Phone Number Input */}
+                <div className="relative flex-1">
+                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) =>
+                      setPhoneNumber(e.target.value.replace(/[^0-9]/g, ""))
+                    }
+                    placeholder="9876543210"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    disabled={isSending}
+                    maxLength={10}
+                  />
+                </div>
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                +91 prefix added by default for India
+                Select country code and enter phone number (India +91 by
+                default)
               </p>
             </div>
 
