@@ -51,7 +51,7 @@ function WhatsAppSendSection({
   customerName,
 }: WhatsAppSendSectionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState(customerPhone || "");
+  const [phoneNumber, setPhoneNumber] = useState(customerPhone || "+91");
   const [isSending, setIsSending] = useState(false);
   const [sendStatus, setSendStatus] = useState<"idle" | "success" | "error">(
     "idle"
@@ -192,13 +192,13 @@ function WhatsAppSendSection({
                   type="tel"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="Enter phone number with country code (e.g., +919876543210)"
+                  placeholder="+919876543210"
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   disabled={isSending}
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                Include country code (e.g., +91 for India)
+                +91 prefix added by default for India
               </p>
             </div>
 
