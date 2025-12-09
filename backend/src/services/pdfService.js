@@ -103,26 +103,32 @@ class PDFGenerationService {
     const pageHeight = doc.page.height;
     const margin = 50;
 
-    // Header with business info
+    // Disable auto page breaks
+    doc.on("pageAdded", () => {
+      // Prevent automatic page additions
+    });
+
+    // Header with business info - compact
     this.addHeader(doc, billData);
 
-    // Bill details section
-    doc.moveDown(2);
+    // Bill details section - no extra spacing
+    doc.moveDown(0.5);
     this.addBillDetails(doc, billData);
 
-    // Customer information
-    doc.moveDown();
+    // Customer information - no extra spacing
+    doc.moveDown(0.5);
     this.addCustomerInfo(doc, billData);
 
-    // Items table
-    doc.moveDown(2);
+    // Items table - compact
+    doc.moveDown(1);
     this.addItemsTable(doc, billData);
 
-    // Totals section
-    doc.moveDown(2);
+    // Totals section - compact
+    doc.moveDown(1);
     this.addTotalsSection(doc, billData);
 
-    // Footer
+    // Footer - positioned relative to content, not fixed
+    doc.moveDown(1.5);
     this.addFooter(doc, billData);
   }
 
@@ -483,9 +489,8 @@ class PDFGenerationService {
    * Add footer with business information
    */
   addFooter(doc, billData) {
-    const pageHeight = doc.page.height;
     const pageWidth = doc.page.width;
-    const footerY = pageHeight - 120;
+    const footerY = doc.y + 20; // Position relative to current content
 
     // Decorative line above footer
     doc
@@ -495,47 +500,36 @@ class PDFGenerationService {
       .lineTo(pageWidth - 50, footerY - 15)
       .stroke();
 
-    // Footer background
-    doc.rect(0, footerY, pageWidth, 120).fillAndStroke("#fff5f7", "#fff5f7");
+    // Footer background - smaller height
+    doc.rect(0, footerY, pageWidth, 80).fillAndStroke("#fff5f7", "#fff5f7");
 
-    // Thank you message with icon
+    // Thank you message with icon - compact
     doc
-      .fontSize(14)
+      .fontSize(12)
       .fillColor("#ec4899")
       .font("Helvetica-Bold")
-      .text("🎂 Thank You for Choosing CakeRaft!", 50, footerY + 15, {
+      .text("🎂 Thank You for Choosing CakeRaft!", 50, footerY + 10, {
         align: "center",
         width: pageWidth - 100,
       });
 
     doc
-      .fontSize(10)
+      .fontSize(9)
       .fillColor("#666")
       .font("Helvetica")
       .text(
-        "Artisan Cakes Crafted with Passion | Made to Order | Premium Quality Guaranteed",
+        "Artisan Cakes Crafted with Passion | Made to Order",
         50,
-        footerY + 40,
+        footerY + 30,
         { align: "center", width: pageWidth - 100 }
       );
 
-    // Contact information
-    doc
-      .fontSize(9)
-      .fillColor("#888")
-      .text(
-        "For questions about your order, please reach out to us at your convenience",
-        50,
-        footerY + 60,
-        { align: "center", width: pageWidth - 100 }
-      );
-
-    // Branding tagline at bottom
+    // Branding tagline at bottom - compact
     doc
       .fontSize(8)
       .fillColor("#ec4899")
       .font("Helvetica-Bold")
-      .text("CakeRaft - Where Every Cake Tells a Story 💝", 50, footerY + 85, {
+      .text("CakeRaft - Where Every Cake Tells a Story 💝", 50, footerY + 50, {
         align: "center",
         width: pageWidth - 100,
       });
