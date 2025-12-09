@@ -147,28 +147,43 @@ class PDFGenerationService {
     // Add decorative header background
     doc.rect(0, 0, pageWidth, 160).fillAndStroke("#fff5f7", "#fff5f7");
 
-    // Add CakeRaft Logo Image - centered properly
+    // Add CakeRaft Logo Image - circular with clipping
     if (fs.existsSync(this.logoPath)) {
       try {
-        // Draw logo with proper centering
+        // Save the current graphics state
+        doc.save();
+
+        // Create circular clipping path
+        doc.circle(80, 80, 30).clip();
+
+        // Draw logo image inside circular clip
         doc.image(this.logoPath, 50, 50, {
           width: 60,
           height: 60,
           fit: [60, 60],
         });
 
-        // Add circular border effect
-        doc.save();
-        doc.circle(80, 80, 32).lineWidth(2.5).strokeColor("#ec4899").stroke();
+        // Restore graphics state
         doc.restore();
+
+        // Add circular border around logo
+        doc.circle(80, 80, 30).lineWidth(2.5).strokeColor("#ec4899").stroke();
       } catch (error) {
         console.error("Error adding logo to PDF:", error);
-        // Fallback to emoji if logo fails
-        doc.fontSize(45).fillColor("#ec4899").text("🎂", 57, 55);
+        // Fallback to cake symbol if logo fails
+        doc
+          .fontSize(24)
+          .fillColor("#ec4899")
+          .font("Helvetica-Bold")
+          .text("CAKE", 57, 65);
       }
     } else {
-      // Fallback to emoji if logo doesn't exist
-      doc.fontSize(45).fillColor("#ec4899").text("🎂", 57, 55);
+      // Fallback to cake symbol if logo doesn't exist
+      doc
+        .fontSize(24)
+        .fillColor("#ec4899")
+        .font("Helvetica-Bold")
+        .text("CAKE", 57, 65);
     }
 
     // Logo and Business name
@@ -187,7 +202,7 @@ class PDFGenerationService {
     doc
       .fontSize(9)
       .fillColor("#888")
-      .text("Made with Love & Passion 🎂", 125, 108);
+      .text("Made with Love & Passion", 125, 108);
 
     // Invoice title box - right side
     doc.rect(pageWidth - 200, 50, 150, 75).fillAndStroke("#ec4899", "#ec4899");
@@ -325,12 +340,12 @@ class PDFGenerationService {
     // Loyalty rewards box with celebratory styling - increased height for better spacing
     doc.rect(50, boxY, pageWidth - 100, 95).fillAndStroke("#f0fdf4", "#10b981");
 
-    // Title with emoji inline - better spacing
+    // Title with celebration symbol - better spacing
     doc
       .fontSize(13)
       .fillColor("#16a34a")
       .font("Helvetica-Bold")
-      .text("🎉 LOYALTY REWARD APPLIED!", 65, boxY + 15);
+      .text("*** LOYALTY REWARD APPLIED! ***", 65, boxY + 15);
 
     // Message with proper width constraint
     const message =
@@ -566,12 +581,12 @@ class PDFGenerationService {
     // Footer background - smaller height
     doc.rect(0, footerY, pageWidth, 80).fillAndStroke("#fff5f7", "#fff5f7");
 
-    // Thank you message with icon - compact
+    // Thank you message - compact
     doc
       .fontSize(12)
       .fillColor("#ec4899")
       .font("Helvetica-Bold")
-      .text("🎂 Thank You for Choosing CakeRaft!", 50, footerY + 10, {
+      .text("Thank You for Choosing CakeRaft!", 50, footerY + 10, {
         align: "center",
         width: pageWidth - 100,
       });
@@ -594,7 +609,7 @@ class PDFGenerationService {
         .fillColor("#16a34a")
         .font("Helvetica-Bold")
         .text(
-          "🎁 Earn rewards! Get 10% off on your 3rd purchase!",
+          "* Earn rewards! Get 10% off on your 3rd purchase! *",
           50,
           footerY + 47,
           {
@@ -609,7 +624,7 @@ class PDFGenerationService {
       .fontSize(8)
       .fillColor("#ec4899")
       .font("Helvetica-Bold")
-      .text("CakeRaft - Where Every Cake Tells a Story 💝", 50, footerY + 62, {
+      .text("CakeRaft - Where Every Cake Tells a Story", 50, footerY + 62, {
         align: "center",
         width: pageWidth - 100,
       });
