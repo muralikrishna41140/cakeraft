@@ -57,7 +57,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 export default function DashboardPage() {
-  const { admin, logout, loading: authLoading } = useAuth();
+  const { admin, logout, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isExporting, setIsExporting] = useState(false);
