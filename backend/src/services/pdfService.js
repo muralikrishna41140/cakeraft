@@ -119,6 +119,12 @@ class PDFGenerationService {
     doc.moveDown(0.5);
     this.addCustomerInfo(doc, billData);
 
+    // Loyalty information - if applicable
+    if (billData.loyaltyInfo && billData.loyaltyInfo.applied) {
+      doc.moveDown(0.5);
+      this.addLoyaltySection(doc, billData);
+    }
+
     // Items table - compact
     doc.moveDown(1);
     this.addItemsTable(doc, billData);
@@ -141,46 +147,47 @@ class PDFGenerationService {
     // Add decorative header background
     doc.rect(0, 0, pageWidth, 160).fillAndStroke("#fff5f7", "#fff5f7");
 
-    // Add CakeRaft Logo Image
+    // Add CakeRaft Logo Image - centered properly
     if (fs.existsSync(this.logoPath)) {
       try {
-        doc.image(this.logoPath, 50, 45, {
-          width: 70,
-          height: 70,
-          fit: [70, 70],
-          align: "center",
-          valign: "center",
+        // Draw logo with proper centering
+        doc.image(this.logoPath, 50, 50, {
+          width: 60,
+          height: 60,
+          fit: [60, 60],
         });
 
-        // Add circular border effect using path
-        doc.circle(85, 80, 37).lineWidth(3).strokeColor("#ec4899").stroke();
+        // Add circular border effect
+        doc.save();
+        doc.circle(80, 80, 32).lineWidth(2.5).strokeColor("#ec4899").stroke();
+        doc.restore();
       } catch (error) {
         console.error("Error adding logo to PDF:", error);
         // Fallback to emoji if logo fails
-        doc.fontSize(50).fillColor("#ec4899").text("🎂", 55, 50);
+        doc.fontSize(45).fillColor("#ec4899").text("🎂", 57, 55);
       }
     } else {
       // Fallback to emoji if logo doesn't exist
-      doc.fontSize(50).fillColor("#ec4899").text("🎂", 55, 50);
+      doc.fontSize(45).fillColor("#ec4899").text("🎂", 57, 55);
     }
 
     // Logo and Business name
     doc
-      .fontSize(32)
+      .fontSize(30)
       .fillColor("#ec4899")
       .font("Helvetica-Bold")
-      .text("CakeRaft", 135, 50, { align: "left" });
+      .text("CakeRaft", 125, 55, { align: "left" });
 
     doc
-      .fontSize(12)
+      .fontSize(11)
       .fillColor("#666")
       .font("Helvetica")
-      .text("Artisan Cake Creations", 135, 88);
+      .text("Artisan Cake Creations", 125, 90);
 
     doc
-      .fontSize(10)
+      .fontSize(9)
       .fillColor("#888")
-      .text("Made with Love & Passion 🎂", 135, 108);
+      .text("Made with Love & Passion 🎂", 125, 108);
 
     // Invoice title box - right side
     doc.rect(pageWidth - 200, 50, 150, 75).fillAndStroke("#ec4899", "#ec4899");
@@ -224,8 +231,8 @@ class PDFGenerationService {
       .lineTo(pageWidth - 50, 170)
       .stroke();
 
-    // Reset position
-    doc.y = 190;
+    // Reset position after header
+    doc.y = 195;
   }
 
   /**
@@ -288,15 +295,76 @@ class PDFGenerationService {
       .fontSize(11)
       .fillColor("#333")
       .font("Helvetica-Bold")
-      .text(`${customerInfo.name || "N/A"}`, 60, boxY + 30);
+      .text(customerInfo.name || "N/A", 60, boxY + 30);
 
+    // Clean phone number display
+    const phoneNumber = customerInfo.phone || "N/A";
     doc
       .fontSize(10)
       .fillColor("#666")
       .font("Helvetica")
-      .text(`📞 ${customerInfo.phone || "N/A"}`, 60, boxY + 48);
+      .text("Phone:", 60, boxY + 48);
 
-    doc.y = boxY + 80;
+    doc
+      .fontSize(10)
+      .fillColor("#333")
+      .font("Helvetica-Bold")
+      .text(phoneNumber, 100, boxY + 48);
+
+    doc.y = boxY + 85;
+  }
+
+  /**
+   * Add loyalty rewards section
+   */
+  addLoyaltySection(doc, billData) {
+    const loyaltyInfo = billData.loyaltyInfo || {};
+    const boxY = doc.y;
+    const pageWidth = doc.page.width;
+
+    // Loyalty rewards box with celebratory styling - increased height
+    doc.rect(50, boxY, pageWidth - 100, 85).fillAndStroke("#f0fdf4", "#10b981");
+
+    // Add decorative emoji
+    doc
+      .fontSize(20)
+      .fillColor("#10b981")
+      .text("🎉", 60, boxY + 32);
+
+    // Title
+    doc
+      .fontSize(12)
+      .fillColor("#16a34a")
+      .font("Helvetica-Bold")
+      .text("LOYALTY REWARD APPLIED!", 90, boxY + 15);
+
+    // Message
+    const message =
+      loyaltyInfo.message ||
+      "Congratulations! You received a loyalty discount.";
+    doc
+      .fontSize(9)
+      .fillColor("#15803d")
+      .font("Helvetica")
+      .text(message, 90, boxY + 35, {
+        width: pageWidth - 160,
+        lineGap: 2,
+      });
+
+    // Discount amount highlight
+    doc
+      .fontSize(10)
+      .fillColor("#16a34a")
+      .font("Helvetica-Bold")
+      .text(
+        `You Saved: ₹${(loyaltyInfo.discountAmount || 0).toFixed(2)} (${
+          loyaltyInfo.discountPercentage || 0
+        }%)`,
+        90,
+        boxY + 60
+      );
+
+    doc.y = boxY + 100;
   }
 
   /**
@@ -524,12 +592,29 @@ class PDFGenerationService {
         { align: "center", width: pageWidth - 100 }
       );
 
+    // Loyalty program reminder (if not already applied)
+    if (!billData.loyaltyInfo || !billData.loyaltyInfo.applied) {
+      doc
+        .fontSize(8)
+        .fillColor("#16a34a")
+        .font("Helvetica-Bold")
+        .text(
+          "🎁 Earn rewards! Get 10% off on your 3rd purchase!",
+          50,
+          footerY + 47,
+          {
+            align: "center",
+            width: pageWidth - 100,
+          }
+        );
+    }
+
     // Branding tagline at bottom - compact
     doc
       .fontSize(8)
       .fillColor("#ec4899")
       .font("Helvetica-Bold")
-      .text("CakeRaft - Where Every Cake Tells a Story 💝", 50, footerY + 50, {
+      .text("CakeRaft - Where Every Cake Tells a Story 💝", 50, footerY + 62, {
         align: "center",
         width: pageWidth - 100,
       });

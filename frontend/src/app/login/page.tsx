@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { useAuth } from '@/context/AuthContext';
-import Button from '@/components/ui/Button';
-import { Eye, EyeOff, Shield, UserCircle, Wifi, WifiOff } from 'lucide-react';
-import toast from 'react-hot-toast';
-import { getErrorMessage } from '@/lib/apiRetry';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { useAuth } from "@/context/AuthContext";
+import Button from "@/components/ui/Button";
+import { Eye, EyeOff, Shield, UserCircle, Wifi, WifiOff } from "lucide-react";
+import toast from "react-hot-toast";
+import { getErrorMessage } from "@/lib/apiRetry";
 
 interface LoginFormData {
   email: string;
@@ -19,12 +19,12 @@ export default function LoginPage() {
   const [isOnline, setIsOnline] = useState(true);
   const { login, isAuthenticated, isLoading: authLoading } = useAuth();
   const router = useRouter();
-  
+
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    setError
+    setError,
   } = useForm<LoginFormData>();
 
   // Check online status
@@ -32,54 +32,60 @@ export default function LoginPage() {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => {
       setIsOnline(false);
-      toast.error('You are offline. Please check your internet connection.');
+      toast.error("You are offline. Please check your internet connection.");
     };
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
   }, []);
 
   // Redirect if already authenticated
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      console.log('✅ User already authenticated, redirecting to dashboard');
-      router.push('/dashboard');
+      console.log("✅ User already authenticated, redirecting to dashboard");
+      router.push("/dashboard");
     }
   }, [isAuthenticated, authLoading, router]);
 
   const onSubmit = async (data: LoginFormData) => {
     // Check if online
     if (!isOnline) {
-      toast.error('You are offline. Please check your internet connection.');
+      toast.error("You are offline. Please check your internet connection.");
       return;
     }
 
     try {
-      console.log('📝 Submitting login form...');
+      console.log("📝 Submitting login form...");
       await login(data.email, data.password);
-      console.log('✅ Login successful, redirecting to dashboard...');
-      router.push('/dashboard');
+      console.log("✅ Login successful, redirecting to dashboard...");
+      router.push("/dashboard");
     } catch (error: any) {
-      console.error('❌ Login form error:', error);
-      
+      console.error("❌ Login form error:", error);
+
       // Extract meaningful error message
       const errorMessage = getErrorMessage(error);
-      
+
       // Set form errors based on API response
-      if (errorMessage.toLowerCase().includes('email')) {
-        setError('email', { message: errorMessage });
-      } else if (errorMessage.toLowerCase().includes('password') || errorMessage.toLowerCase().includes('credentials')) {
-        setError('password', { message: errorMessage });
+      if (errorMessage.toLowerCase().includes("email")) {
+        setError("email", { message: errorMessage });
+      } else if (
+        errorMessage.toLowerCase().includes("password") ||
+        errorMessage.toLowerCase().includes("credentials")
+      ) {
+        setError("password", { message: errorMessage });
       } else {
         // Show general error - toast already shown in AuthContext
         // Only set error if it's not already shown
-        if (!errorMessage.includes('timeout') && !errorMessage.includes('network')) {
-          setError('password', { message: errorMessage });
+        if (
+          !errorMessage.includes("timeout") &&
+          !errorMessage.includes("network")
+        ) {
+          setError("password", { message: errorMessage });
         }
       }
     }
@@ -106,7 +112,7 @@ export default function LoginPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="mx-auto h-16 w-16 rounded-full overflow-hidden border-2 border-green-600 shadow-lg mb-4">
-            <img 
+            <img
               src="https://res.cloudinary.com/dsguaqukb/image/upload/v1758778085/cake_fak42q.jpg"
               alt="CakeRaft Logo"
               className="w-full h-full object-cover"
@@ -128,13 +134,15 @@ export default function LoginPage() {
               Admin Login
             </h2>
           </div>
-          
+
           <div className="card-body">
             {/* Network Status Indicator */}
             {!isOnline && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
                 <WifiOff className="h-4 w-4" />
-                <span className="text-sm">You are offline. Please check your internet connection.</span>
+                <span className="text-sm">
+                  You are offline. Please check your internet connection.
+                </span>
               </div>
             )}
 
@@ -147,14 +155,14 @@ export default function LoginPage() {
                 <input
                   type="email"
                   id="email"
-                  className={`input ${errors.email ? 'input-error' : ''}`}
-                  placeholder="admin@billing.com"
-                  {...register('email', {
-                    required: 'Email is required',
+                  className={`input ${errors.email ? "input-error" : ""}`}
+                  placeholder="Enter your email"
+                  {...register("email", {
+                    required: "Email is required",
                     pattern: {
                       value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: 'Invalid email address'
-                    }
+                      message: "Invalid email address",
+                    },
                   })}
                 />
                 {errors.email && (
@@ -169,16 +177,18 @@ export default function LoginPage() {
                 </label>
                 <div className="relative">
                   <input
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     id="password"
-                    className={`input pr-10 ${errors.password ? 'input-error' : ''}`}
+                    className={`input pr-10 ${
+                      errors.password ? "input-error" : ""
+                    }`}
                     placeholder="Enter your password"
-                    {...register('password', {
-                      required: 'Password is required',
+                    {...register("password", {
+                      required: "Password is required",
                       minLength: {
                         value: 6,
-                        message: 'Password must be at least 6 characters'
-                      }
+                        message: "Password must be at least 6 characters",
+                      },
                     })}
                   />
                   <button
@@ -207,7 +217,7 @@ export default function LoginPage() {
                 disabled={!isOnline || isSubmitting}
                 className="w-full"
               >
-                {isSubmitting ? 'Signing in...' : 'Sign In'}
+                {isSubmitting ? "Signing in..." : "Sign In"}
               </Button>
 
               {/* Help text for slow connections */}
@@ -224,12 +234,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="text-center mt-8 text-sm text-gray-500">
-          <p>
-            Default credentials: admin@billing.com / Admin@123
-          </p>
-          <p className="mt-2">
-            Secure billing management system
-          </p>
+          <p>Secure billing management system</p>
         </div>
       </div>
     </div>

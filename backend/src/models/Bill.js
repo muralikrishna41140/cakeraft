@@ -68,6 +68,28 @@ const billSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    loyaltyInfo: {
+      applied: {
+        type: Boolean,
+        default: false,
+      },
+      discountAmount: {
+        type: Number,
+        default: 0,
+      },
+      discountPercentage: {
+        type: Number,
+        default: 0,
+      },
+      message: {
+        type: String,
+        default: "",
+      },
+      purchaseNumber: {
+        type: Number,
+        default: 0,
+      },
+    },
     createdAt: {
       type: Date,
       default: Date.now,

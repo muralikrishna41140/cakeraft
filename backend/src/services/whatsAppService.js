@@ -388,16 +388,39 @@ class WhatsAppService {
       const billNumber = billData.billNumber || billData._id;
       const total = billData.total || 0;
 
-      const caption =
+      // Check if loyalty discount was applied
+      const loyaltyApplied = billData.loyaltyInfo?.applied || false;
+      const loyaltyDiscount = billData.loyaltyInfo?.discountAmount || 0;
+      const loyaltyPercentage = billData.loyaltyInfo?.discountPercentage || 0;
+
+      let caption =
         `🎂 *CakeRaft* - Invoice\n\n` +
         `Dear ${customerName},\n\n` +
-        `Thank you for your order! 💖\n\n` +
+        `Thank you for your order! 💖\n\n`;
+
+      // Add loyalty celebration message if applicable
+      if (loyaltyApplied && loyaltyDiscount > 0) {
+        caption +=
+          `🎉 *LOYALTY REWARD APPLIED!* 🎉\n` +
+          `You saved ₹${loyaltyDiscount.toFixed(
+            2
+          )} (${loyaltyPercentage}% off)! 💝\n\n`;
+      }
+
+      caption +=
         `📋 *Bill #:* ${billNumber}\n` +
         `💰 *Total:* ₹${total.toFixed(2)}\n` +
         `📅 *Date:* ${new Date(billData.createdAt).toLocaleDateString(
           "en-IN"
         )}\n\n` +
-        `Your artisan cakes are being crafted with passion! 🧁\n\n` +
+        `Your artisan cakes are being crafted with passion! 🧁\n\n`;
+
+      // Add loyalty reminder if discount wasn't applied
+      if (!loyaltyApplied) {
+        caption += `🎁 *Earn 10% off on your 3rd purchase!*\n\n`;
+      }
+
+      caption +=
         `For any questions, feel free to contact us.\n\n` +
         `*CakeRaft Team* 🎂`;
 

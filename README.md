@@ -20,6 +20,7 @@ A complete full-stack billing and management system designed specifically for ca
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **Next.js 14** - React framework with App Router
 - **TypeScript** - Type-safe development
 - **TailwindCSS** - Modern CSS framework
@@ -28,6 +29,7 @@ A complete full-stack billing and management system designed specifically for ca
 - **React Hot Toast** - Notifications
 
 ### Backend
+
 - **Node.js** - JavaScript runtime
 - **Express.js** - Web application framework
 - **MongoDB Atlas** - Cloud database
@@ -68,6 +70,7 @@ billing-system/
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+ installed
 - MongoDB Atlas account
 - Git installed
@@ -91,12 +94,14 @@ npm install
 ### 2. Environment Configuration
 
 #### Backend Setup (.env)
+
 ```bash
 cd backend
 cp .env.example .env
 ```
 
 Edit `backend/.env` with your configuration:
+
 ```env
 NODE_ENV=development
 PORT=5000
@@ -124,12 +129,14 @@ WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id
 > **🔔 WhatsApp Integration**: For WhatsApp PDF bill sending, see [WHATSAPP_SETUP.md](WHATSAPP_SETUP.md) for detailed setup instructions.
 
 #### Frontend Setup (.env.local)
+
 ```bash
 cd frontend
 cp .env.example .env.local
 ```
 
 Edit `frontend/.env.local`:
+
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ```
@@ -137,11 +144,13 @@ NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ### 3. Database Setup
 
 1. **Create MongoDB Atlas Account** (if you don't have one)
+
    - Go to [MongoDB Atlas](https://www.mongodb.com/atlas)
    - Create a free account
    - Create a new cluster
 
 2. **Get Connection String**
+
    - In your cluster, click "Connect"
    - Choose "Connect your application"
    - Copy the connection string
@@ -155,17 +164,21 @@ NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ### 4. Run the Application
 
 #### Start Backend (Terminal 1)
+
 ```bash
 cd backend
 npm run dev
 ```
+
 Server will run on http://localhost:5000
 
 #### Start Frontend (Terminal 2)
+
 ```bash
 cd frontend
 npm run dev
 ```
+
 Frontend will run on http://localhost:3000
 
 ### 5. First Login
@@ -178,12 +191,14 @@ Frontend will run on http://localhost:3000
 ## 📝 API Documentation
 
 ### Authentication Endpoints
+
 - `POST /api/auth/login` - Admin login
 - `GET /api/auth/profile` - Get admin profile
 - `PUT /api/auth/change-password` - Change password
 - `GET /api/auth/verify` - Verify token
 
 ### Product Endpoints
+
 - `GET /api/products` - Get all products
 - `POST /api/products` - Create product (with image)
 - `PUT /api/products/:id` - Update product
@@ -191,6 +206,7 @@ Frontend will run on http://localhost:3000
 - `GET /api/products/:id` - Get single product
 
 ### Category Endpoints
+
 - `GET /api/products/categories` - Get all categories
 - `POST /api/products/categories` - Create category
 - `PUT /api/products/categories/:id` - Update category
@@ -199,6 +215,7 @@ Frontend will run on http://localhost:3000
 ## 🔧 Development
 
 ### Backend Commands
+
 ```bash
 npm run dev          # Start development server
 npm start           # Start production server
@@ -206,6 +223,7 @@ npm run lint        # Lint code
 ```
 
 ### Frontend Commands
+
 ```bash
 npm run dev         # Start development server
 npm run build       # Build for production
@@ -216,12 +234,14 @@ npm run lint       # Lint code
 ## 📦 Deployment
 
 ### Backend Deployment
+
 1. Set environment variables in your hosting platform
 2. Ensure MongoDB Atlas allows connections from your server
 3. Set `NODE_ENV=production`
 4. Update CORS origins in server.js
 
 ### Frontend Deployment
+
 1. Update `NEXT_PUBLIC_API_URL` to your production API URL
 2. Build the application: `npm run build`
 3. Deploy the `.next` folder
@@ -239,6 +259,7 @@ npm run lint       # Lint code
 ## 🎯 Usage Guide
 
 ### Adding Products
+
 1. Go to Dashboard → Manage Products
 2. Click "Add Product"
 3. Fill in product details
@@ -247,6 +268,7 @@ npm run lint       # Lint code
 6. Set pricing and stock
 
 ### Creating Bills
+
 1. Go to Dashboard → Start Billing
 2. Add products to cart
 3. Adjust quantities
@@ -254,6 +276,7 @@ npm run lint       # Lint code
 5. Process checkout
 
 ### Managing Categories
+
 1. Go to Products → Categories
 2. Add, edit, or delete categories
 3. Categories help organize products
@@ -263,21 +286,25 @@ npm run lint       # Lint code
 ### Common Issues
 
 **MongoDB Connection Error**
+
 - Verify connection string in .env
 - Check database user credentials
 - Ensure IP whitelist includes your address
 
 **File Upload Issues**
+
 - Check file size (max 5MB)
 - Verify file type (images only)
 - Ensure uploads folder has write permissions
 
 **Authentication Problems**
+
 - Verify JWT_SECRET in .env
 - Check token expiration settings
 - Clear browser localStorage
 
 **Port Already in Use**
+
 - Change PORT in backend/.env
 - Kill existing processes: `lsof -ti:5000 | xargs kill`
 

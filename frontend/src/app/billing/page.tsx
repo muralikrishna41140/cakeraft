@@ -752,8 +752,8 @@ export default function BillingPage() {
               </div>
             </div>
 
-            {/* Cart Section - Hidden on mobile, visible on desktop */}
-            <div className="hidden lg:block">
+            {/* Cart Section - Now visible on all screens */}
+            <div>
               <div className="card rounded-lg shadow-md">
                 <div className="card-header">
                   <h2 className="text-base sm:text-lg font-semibold">

@@ -21,7 +21,8 @@ Disallow: /analytics
 Disallow: /categories/manage
 
 # Host
-Host: https://cakeraft.com
+Host: https://cakeraft.in
+
 
 # Sitemaps
-Sitemap: https://cakeraft.com/sitemap.xml
+Sitemap: https://cakeraft.in/sitemap.xml

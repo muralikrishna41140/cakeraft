@@ -117,6 +117,59 @@ export const metadata: Metadata = {
   },
 
   category: "Business & Productivity",
+
+  // Additional comprehensive meta tags for better SEO
+  other: {
+    // Business Information
+    "business:contact_data:street_address":
+      SITE_CONFIG.contact.address.streetAddress,
+    "business:contact_data:locality":
+      SITE_CONFIG.contact.address.addressLocality,
+    "business:contact_data:region": SITE_CONFIG.contact.address.addressRegion,
+    "business:contact_data:postal_code": SITE_CONFIG.contact.address.postalCode,
+    "business:contact_data:country_name":
+      SITE_CONFIG.contact.address.addressCountry,
+    "business:contact_data:email": SITE_CONFIG.contact.email,
+    "business:contact_data:phone_number": SITE_CONFIG.contact.phone,
+
+    // Software Application Tags
+    "application-name": SITE_CONFIG.name,
+    "software-application": "Business Management Software",
+    "software-category": "Bakery Management, Billing Software, POS System",
+
+    // Target Audience
+    "target-audience":
+      "Cake Businesses, Bakeries, Home Bakers, Pastry Shops, Custom Cake Makers",
+
+    // Geographic Coverage
+    "geographic-coverage": "India, Worldwide",
+    "content-language": "en-IN",
+
+    // Business Features
+    features:
+      "Smart Billing, Customer Loyalty, WhatsApp Integration, Revenue Analytics, Inventory Management",
+
+    // Mobile App Capable
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-title": SITE_CONFIG.name,
+
+    // Rating & Reviews
+    rating: "4.9 out of 5 stars",
+    "review-count": "127",
+
+    // Industry Classification
+    industry:
+      "Software as a Service (SaaS), Business Management Software, Food & Beverage Technology",
+
+    // Pricing
+    price: "Free to Start",
+    currency: "INR",
+
+    // Distribution
+    distribution: "Global",
+    availability: "Online",
+  },
 };
 
 export default function RootLayout({
@@ -133,6 +186,79 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <head>
+        {/* Enhanced Meta Tags for SEO */}
+        <meta name="rating" content="General" />
+        <meta name="revisit-after" content="7 days" />
+        <meta name="distribution" content="global" />
+        <meta name="language" content="English" />
+        <meta name="coverage" content="Worldwide" />
+        <meta name="target" content="all" />
+        <meta name="HandheldFriendly" content="True" />
+        <meta name="MobileOptimized" content="320" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
+
+        {/* Business & Industry Specific Meta Tags */}
+        <meta
+          name="industry"
+          content="Software, Food & Beverage Technology, Business Management"
+        />
+        <meta
+          name="classification"
+          content="Business Software, SaaS Platform, Bakery Management System"
+        />
+        <meta
+          name="subject"
+          content="Cake Business Management, Bakery Billing Software, Customer Loyalty System"
+        />
+        <meta
+          name="topic"
+          content="Bakery Management, POS System, Business Automation"
+        />
+        <meta
+          name="summary"
+          content="Complete cake business management system with billing, loyalty rewards, WhatsApp integration, and analytics"
+        />
+
+        {/* Search Engine Specific Tags */}
+        <meta
+          name="googlebot"
+          content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1"
+        />
+        <meta
+          name="bingbot"
+          content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1"
+        />
+        <meta name="allow-search" content="yes" />
+        <meta
+          name="audience"
+          content="Business Owners, Entrepreneurs, Bakery Managers, Cake Shop Owners"
+        />
+
+        {/* Geographic & Location Tags */}
+        <meta name="geo.region" content="IN" />
+        <meta name="geo.placename" content="India" />
+        <meta name="geo.position" content="" />
+        <meta name="ICBM" content="" />
+
+        {/* Copyright & Ownership */}
+        <meta name="copyright" content="CakeRaft" />
+        <meta name="designer" content="CakeRaft Team" />
+        <meta name="owner" content="CakeRaft" />
+        <meta name="url" content={SITE_CONFIG.url} />
+        <meta name="identifier-URL" content={SITE_CONFIG.url} />
+
+        {/* Page Type & Classification */}
+        <meta
+          name="pagename"
+          content="CakeRaft - Cake Business Management System"
+        />
+        <meta name="category" content="Business & Productivity Software" />
+        <meta name="coverage" content="Global" />
+
         {/* Structured Data - JSON-LD */}
         <script
           type="application/ld+json"

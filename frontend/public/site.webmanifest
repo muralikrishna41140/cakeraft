@@ -1,12 +1,14 @@
 {
-  "name": "CakeRaft",
+  "name": "CakeRaft - Professional Cake Business Management System",
   "short_name": "CakeRaft",
-  "description": "Professional Cake Business Management System",
+  "description": "Complete cloud-based cake business management with smart billing, customer loyalty rewards, WhatsApp integration, and real-time analytics. Perfect for bakeries, custom cake shops, and home bakers.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ec4899",
   "orientation": "portrait-primary",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "https://res.cloudinary.com/du4jhwpak/image/upload/v1765109404/cakeraft_white_logo_dyo9lo.jpg",

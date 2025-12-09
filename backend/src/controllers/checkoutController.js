@@ -149,6 +149,13 @@ export const createCheckout = async (req, res) => {
         name: customerInfo.name.trim(),
         phone: customerInfo.phone.trim(),
       },
+      loyaltyInfo: {
+        applied: loyaltyDiscount.loyaltyApplied,
+        discountAmount: loyaltyDiscountAmount,
+        discountPercentage: loyaltyDiscount.discountPercentage || 0,
+        message: loyaltyDiscount.message || "",
+        purchaseNumber: loyaltyDiscount.purchaseNumber || 0,
+      },
     });
 
     await bill.save({ session });

@@ -24,16 +24,19 @@ src/
 ## 🚀 Getting Started
 
 ### Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### Environment Setup
+
 ```bash
 cp .env.example .env
 ```
 
 Edit `.env` with your configuration:
+
 ```env
 # Server Configuration
 NODE_ENV=development
@@ -56,6 +59,7 @@ ALLOWED_FILE_TYPES=image/jpeg,image/png,image/gif,image/webp
 ```
 
 ### Run Development Server
+
 ```bash
 npm run dev
 ```
@@ -63,6 +67,7 @@ npm run dev
 The server will start on `http://localhost:5000`
 
 ### Run Production Server
+
 ```bash
 npm start
 ```
@@ -70,16 +75,19 @@ npm start
 ## 📊 Database Models
 
 ### Admin Model
+
 - `email`: String (required, unique, validated)
 - `password`: String (required, hashed with bcrypt)
 - `lastLogin`: Date (updated on successful login)
 
 ### Category Model
+
 - `name`: String (required, unique)
 - `description`: String (optional)
 - `isActive`: Boolean (default: true)
 
 ### Product Model
+
 - `name`: String (required, max 100 chars)
 - `description`: String (required, max 500 chars)
 - `price`: Number (required, min 0, rounded to 2 decimals)
@@ -97,9 +105,10 @@ The API uses JWT (JSON Web Tokens) for authentication:
 3. **Protected Routes**: Include token in Authorization header: `Bearer <token>`
 
 ### Auth Middleware
+
 ```javascript
 // Protected route example
-router.get('/protected', protect, (req, res) => {
+router.get("/protected", protect, (req, res) => {
   // req.admin contains authenticated admin data
   res.json({ admin: req.admin });
 });
@@ -115,6 +124,7 @@ Product images are handled using Multer middleware:
 - **Filename**: `product-{timestamp}-{random}.{extension}`
 
 ### Upload Process
+
 1. File validation (type, size)
 2. Store in `uploads/` directory
 3. Save metadata in database
@@ -123,22 +133,26 @@ Product images are handled using Multer middleware:
 ## 🛡️ Security Features
 
 ### Password Security
+
 - Bcrypt hashing with salt rounds: 12
 - Passwords never returned in API responses
 - Password strength validation
 
 ### JWT Security
+
 - Secure secret key required
 - Token expiration handling
 - Automatic logout on invalid tokens
 
 ### Input Validation
+
 - Email format validation
 - Required field validation
 - File type/size validation
 - MongoDB injection prevention
 
 ### Rate Limiting
+
 - 100 requests per 15 minutes per IP
 - Prevents brute force attacks
 - Configurable limits
@@ -146,6 +160,7 @@ Product images are handled using Multer middleware:
 ## 🚦 API Endpoints
 
 ### Authentication
+
 ```
 POST   /api/auth/login           # Login admin
 GET    /api/auth/profile         # Get profile (protected)
@@ -154,6 +169,7 @@ GET    /api/auth/verify          # Verify token (protected)
 ```
 
 ### Categories
+
 ```
 GET    /api/products/categories      # Get all categories
 POST   /api/products/categories      # Create category
@@ -162,6 +178,7 @@ DELETE /api/products/categories/:id  # Delete category
 ```
 
 ### Products
+
 ```
 GET    /api/products           # Get products (with pagination/search)
 GET    /api/products/:id       # Get single product
@@ -171,6 +188,7 @@ DELETE /api/products/:id       # Delete product
 ```
 
 ### Utility
+
 ```
 GET    /api/health             # Health check
 GET    /uploads/:filename      # Serve uploaded images
@@ -179,6 +197,7 @@ GET    /uploads/:filename      # Serve uploaded images
 ## 📝 API Response Format
 
 ### Success Response
+
 ```json
 {
   "success": true,
@@ -188,6 +207,7 @@ GET    /uploads/:filename      # Serve uploaded images
 ```
 
 ### Error Response
+
 ```json
 {
   "success": false,
@@ -199,6 +219,7 @@ GET    /uploads/:filename      # Serve uploaded images
 ## 🔧 Development
 
 ### Project Scripts
+
 ```bash
 npm run dev     # Development with nodemon
 npm start       # Production server
@@ -206,12 +227,15 @@ npm run lint    # Code linting (if configured)
 ```
 
 ### Database Connection
+
 The server automatically:
+
 1. Connects to MongoDB on startup
 2. Creates admin user if none exists
 3. Handles connection errors gracefully
 
 ### Logging
+
 - Successful operations logged to console
 - Error details logged with stack traces
 - MongoDB connection status displayed
@@ -219,7 +243,9 @@ The server automatically:
 ## 🚀 Deployment
 
 ### Environment Variables
+
 Ensure these are set in production:
+
 ```env
 NODE_ENV=production
 PORT=5000
@@ -228,15 +254,20 @@ JWT_SECRET=your_secure_jwt_secret
 ```
 
 ### CORS Configuration
+
 Update `server.js` for production domains:
+
 ```javascript
-app.use(cors({
-  origin: ['https://your-domain.com'],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: ["https://your-domain.com"],
+    credentials: true,
+  })
+);
 ```
 
 ### File Upload in Production
+
 - Ensure `uploads/` directory exists
 - Set proper file permissions
 - Consider cloud storage for scalability
@@ -244,11 +275,13 @@ app.use(cors({
 ## 🔍 Monitoring
 
 ### Health Check
+
 ```bash
 curl http://localhost:5000/api/health
 ```
 
 Response:
+
 ```json
 {
   "status": "OK",
@@ -263,6 +296,7 @@ Response:
 ### Common Issues
 
 **MongoDB Connection Failed**
+
 ```bash
 # Check connection string
 echo $MONGODB_URI
@@ -272,6 +306,7 @@ mongosh "your_connection_string"
 ```
 
 **JWT Token Issues**
+
 ```bash
 # Verify JWT_SECRET is set
 echo $JWT_SECRET
@@ -281,6 +316,7 @@ curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:5000/api/auth/verify
 ```
 
 **File Upload Problems**
+
 ```bash
 # Check uploads directory
 ls -la uploads/
@@ -290,7 +326,9 @@ chmod 755 uploads/
 ```
 
 ### Debug Mode
+
 Set environment variable for detailed logs:
+
 ```bash
 DEBUG=billing-system:* npm run dev
 ```
