@@ -1200,10 +1200,14 @@ export default function BillingPage() {
                       min="0"
                       max={discountType === "percentage" ? "100" : "999"}
                       step={discountType === "percentage" ? "1" : "0.01"}
-                      value={discountValue}
+                      value={discountValue || ""}
                       onChange={(e) => setDiscountValue(Number(e.target.value))}
                       className="input w-full pl-8 border-green-200 focus:border-green-400 focus:ring-green-300"
-                      placeholder={discountType === "percentage" ? "0" : "0.00"}
+                      placeholder={
+                        discountType === "percentage"
+                          ? "Enter %"
+                          : "Enter amount"
+                      }
                     />
                     <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
                       {discountType === "percentage" ? "%" : "₹"}
