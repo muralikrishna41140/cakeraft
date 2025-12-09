@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Button from "@/components/ui/Button";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { BillingPageSkeleton } from "@/components/ui/LoadingSkeleton";
 import {
   ShoppingCart,
   Plus,
@@ -631,6 +632,10 @@ export default function BillingPage() {
         : product.category === selectedCategory);
     return matchesSearch && matchesCategory;
   });
+
+  if (loading) {
+    return <BillingPageSkeleton />;
+  }
 
   return (
     <ProtectedRoute>
