@@ -75,13 +75,15 @@ export const createCheckout = async (req, res) => {
     // Verify and process each item
     const billItems = [];
     let subtotal = 0;
+    let cakesSubtotal = 0; // Track cakes separately for loyalty discount
     let totalDiscount = 0;
 
     for (const cartItem of items) {
-      // Fetch product from database
-      const product = await Product.findById(cartItem.product._id).session(
-        session
-      );
+      // Fetch product from database with category populated
+      const product = await Product.findById(cartItem.product._id)
+        .populate('category', 'name')
+        .session(session);
+      
       if (!product) {
         throw new Error(`Product not found: ${cartItem.product.name}`);
       }
@@ -112,15 +114,24 @@ export const createCheckout = async (req, res) => {
 
       subtotal += itemSubtotal;
       totalDiscount += itemDiscount;
+
+      // Check if this product is in "Cakes" category for loyalty calculation
+      const categoryName = product.category?.name || '';
+      if (categoryName.toLowerCase().includes('cake')) {
+        cakesSubtotal += itemSubtotal;
+        console.log(`🎂 Cake item found: ${product.name} (${categoryName}) - ₹${itemSubtotal}`);
+      }
     }
 
-    // Check for loyalty discount
+    console.log(`💰 Total subtotal: ₹${subtotal}, Cakes subtotal for loyalty: ₹${cakesSubtotal}`);
+
+    // Check for loyalty discount - ONLY apply to cakes category items
     console.log(
       "🏆 Checking loyalty discount for customer:",
       customerInfo.phone
     );
     const loyaltyDiscount = await loyaltyService.calculateLoyaltyDiscount(
-      subtotal,
+      cakesSubtotal, // Pass only cakes subtotal instead of total subtotal
       customerInfo.phone
     );
 
@@ -133,8 +144,10 @@ export const createCheckout = async (req, res) => {
 
     console.log("💰 Pricing breakdown:", {
       subtotal,
+      cakesSubtotal,
       itemDiscounts: totalDiscount,
       loyaltyDiscount: loyaltyDiscountAmount,
+      loyaltyAppliedToCakes: loyaltyDiscount.loyaltyApplied,
       finalTotal,
       loyaltyMessage: loyaltyDiscount.message,
     });
