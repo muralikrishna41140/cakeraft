@@ -238,7 +238,7 @@ export default function CategoryManagePage() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleEdit(category)}
-                            className="p-2 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-colors"
+                            className="p-2.5 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-all duration-200"
                             title="Edit category"
                           >
                             <Edit className="h-4 w-4" />
@@ -247,10 +247,10 @@ export default function CategoryManagePage() {
                             variant="danger"
                             size="sm"
                             onClick={() => handleDelete(category._id)}
-                            className="p-2 bg-red-50 text-red-600 border-red-200 hover:bg-red-100 hover:border-red-300 transition-colors"
+                            className="p-2.5 bg-white text-red-600 border-2 border-red-500 hover:bg-red-500 hover:text-white transition-all duration-200"
                             title="Delete category"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-4.5 w-4.5 stroke-[2.5]" />
                           </Button>
                         </div>
                       </div>

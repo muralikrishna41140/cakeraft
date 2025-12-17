@@ -39,8 +39,36 @@ export const createCategory = async (req, res) => {
       });
     }
 
+    const trimmedName = name.trim();
+
+    // Check if an inactive category with this name exists
+    const existingCategory = await Category.findOne({
+      name: { $regex: new RegExp(`^${trimmedName}$`, "i") },
+    });
+
+    if (existingCategory) {
+      if (existingCategory.isActive) {
+        return res.status(400).json({
+          success: false,
+          message: "Category name already exists",
+        });
+      } else {
+        // Reactivate the deleted category
+        existingCategory.isActive = true;
+        existingCategory.description = description?.trim() || "";
+        await existingCategory.save();
+
+        return res.status(200).json({
+          success: true,
+          message: "Category reactivated successfully",
+          data: existingCategory,
+        });
+      }
+    }
+
+    // Create new category
     const category = await Category.create({
-      name: name.trim(),
+      name: trimmedName,
       description: description?.trim() || "",
     });
 
