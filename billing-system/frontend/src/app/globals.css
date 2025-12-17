@@ -1,0 +1,177 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --primary-50: #f0fdf4;
+    --primary-100: #dcfce7;
+    --primary-200: #bbf7d0;
+    --primary-300: #86efac;
+    --primary-400: #4ade80;
+    --primary-500: #0B6623;
+    --primary-600: #0a5a1f;
+    --primary-700: #094e1a;
+    --primary-800: #084316;
+    --primary-900: #073811;
+    --accent-cream: #E9CF9C;
+    --accent-cream-light: #F5E8D3;
+    --accent-cream-dark: #D4B882;
+  }
+
+  * {
+    @apply border-green-100;
+  }
+  
+  body {
+    @apply bg-gradient-to-br from-white via-[#F5E8D3]/30 to-green-50/30 text-gray-800;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-xl text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none shadow-sm hover:shadow-md transform hover:scale-[1.02] active:scale-[0.98];
+  }
+  
+  .btn-primary {
+    @apply btn bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 shadow-green-200;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-white border border-green-200 text-green-700 hover:bg-green-50 hover:border-green-300 shadow-green-100;
+  }
+  
+  .btn-success {
+    @apply btn bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-green-200;
+  }
+  
+  .btn-danger {
+    @apply btn bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-red-200;
+  }
+  
+  .btn-outline {
+    @apply btn border-2 border-pink-300 text-pink-700 hover:bg-pink-50 hover:border-pink-400 bg-white/80 backdrop-blur-sm;
+  }
+  
+  .btn-sm {
+    @apply h-8 px-3 text-xs;
+  }
+  
+  .btn-md {
+    @apply h-10 px-4 py-2;
+  }
+  
+  .btn-lg {
+    @apply h-12 px-6 text-base;
+  }
+  
+  .input {
+    @apply flex h-12 w-full rounded-xl border-2 border-green-200 bg-white/90 backdrop-blur-sm px-4 py-3 text-sm ring-offset-white placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300 focus-visible:border-green-400 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-300;
+  }
+  
+  .input-error {
+    @apply border-red-300 focus-visible:ring-red-300 focus-visible:border-red-400;
+  }
+  
+  .card {
+    @apply rounded-2xl border border-green-100 bg-white/90 backdrop-blur-sm shadow-sm hover:shadow-lg transition-all duration-300 hover:border-green-200;
+  }
+  
+  .card-header {
+    @apply flex flex-col space-y-1.5 p-6;
+  }
+  
+  .card-body {
+    @apply p-6 pt-0;
+  }
+  
+  .card-footer {
+    @apply flex items-center p-6 pt-0;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Custom scrollbar */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f9fafb;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f9fafb;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Beautiful animations for cake business */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-bounce-soft {
+  animation: bounce-soft 2s infinite;
+}
+
+/* Animation delay utilities */
+.delay-1000 {
+  animation-delay: 1s;
+}
+
+.delay-2000 {
+  animation-delay: 2s;
+}
+
+.delay-4000 {
+  animation-delay: 4s;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes bounce-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* Loading animation */
+.loading-spinner {
+  @apply inline-block animate-spin rounded-full border-2 border-solid border-current border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite];
+}
+
+/* Beautiful form validation styles */
+.form-group {
+  @apply mb-6;
+}
+
+.form-label {
+  @apply block text-sm font-semibold text-green-800 mb-2;
+}
+
+.form-error {
+  @apply mt-1 text-sm text-red-600 flex items-center gap-1;
+}
+
+.form-help {
+  @apply mt-1 text-sm text-gray-500;
+}

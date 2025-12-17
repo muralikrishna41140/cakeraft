@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@vercel/analytics": "^1.5.0",
+    "next-seo": "^7.0.1",
+    "next-sitemap": "^4.2.3",
+    "schema-dts": "^1.1.5",
+    "sharp": "^0.34.5"
+  }
+}

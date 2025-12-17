@@ -1,25 +1,6 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "billing-system/frontend/package.json",
-      "use": "@vercel/next"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "billing-system/frontend/$1"
-    }
-  ],
-  "buildCommand": "cd billing-system/frontend && npm run build",
+  "buildCommand": "cd billing-system/frontend && npm install && npm run build",
   "outputDirectory": "billing-system/frontend/.next",
   "installCommand": "cd billing-system/frontend && npm install",
-  "framework": "nextjs",
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "billing-system/frontend/$1"
-    }
-  ]
+  "framework": "nextjs"
 }
