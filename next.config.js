@@ -2,13 +2,14 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  output: "standalone",
   images: {
-    domains: ['localhost', 'res.cloudinary.com'],
+    domains: ["localhost", "res.cloudinary.com"],
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/**",
       },
     ],
   },
@@ -18,6 +19,6 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
