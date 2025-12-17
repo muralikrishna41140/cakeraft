@@ -1,6 +1,6 @@
 {
-  "buildCommand": "cd billing-system/frontend && npm install && npm run build",
-  "outputDirectory": "billing-system/frontend/.next",
-  "installCommand": "cd billing-system/frontend && npm install",
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
   "framework": "nextjs"
 }

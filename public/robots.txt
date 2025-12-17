@@ -1,0 +1,28 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /dashboard
+Disallow: /products/add
+Disallow: /products/edit
+Disallow: /billing
+Disallow: /analytics
+Disallow: /categories/manage
+
+# Googlebot
+User-agent: Googlebot
+Allow: /
+Disallow: /login
+Disallow: /dashboard
+Disallow: /products/add
+Disallow: /products/edit
+Disallow: /billing
+Disallow: /analytics
+Disallow: /categories/manage
+
+# Host
+Host: https://cakeraft.in
+
+
+# Sitemaps
+Sitemap: https://cakeraft.in/sitemap.xml
