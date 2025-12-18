@@ -27,8 +27,21 @@ class GoogleSheetsService {
 
   async authenticate() {
     try {
+      // Check if Google Sheets is configured
+      if (!process.env.GOOGLE_SHEETS_SPREADSHEET_ID) {
+        console.log('⚠️  Google Sheets not configured - export feature will be disabled');
+        return false;
+      }
+
       const credentialsPath = path.join(__dirname, '..', 'config', 'google-credentials.json');
       
+      // Check if credentials file exists
+      const fs = await import('fs');
+      if (!fs.existsSync(credentialsPath)) {
+        console.log('⚠️  Google Sheets credentials file not found - export feature will be disabled');
+        return false;
+      }
+
       this.auth = new google.auth.GoogleAuth({
         keyFile: credentialsPath,
         scopes: ['https://www.googleapis.com/auth/spreadsheets'],
@@ -39,8 +52,9 @@ class GoogleSheetsService {
       console.log('✅ Google Sheets authentication successful');
       return true;
     } catch (error) {
-      console.error('❌ Google Sheets authentication failed:', error.message);
-      throw error;
+      console.error('⚠️  Google Sheets authentication failed:', error.message);
+      console.log('   Google Sheets export feature will be disabled');
+      return false;
     }
   }
 

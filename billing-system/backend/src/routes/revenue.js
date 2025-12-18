@@ -244,6 +244,14 @@ router.get("/30days", protect, async (req, res) => {
 // POST /api/revenue/export - Export old revenue to Google Sheets and delete from MongoDB
 router.post("/export", protect, async (req, res) => {
   try {
+    // Check if Google Sheets is configured
+    if (!process.env.GOOGLE_SHEETS_SPREADSHEET_ID) {
+      return res.status(503).json({
+        success: false,
+        message: "Google Sheets export is not configured. Please add GOOGLE_SHEETS_SPREADSHEET_ID to environment variables.",
+      });
+    }
+
     const today = new Date();
     const thirtyDaysAgo = new Date(today);
     thirtyDaysAgo.setDate(today.getDate() - 30);
