@@ -387,6 +387,7 @@ class WhatsAppService {
       const customerName = billData.customerInfo?.name || "Valued Customer";
       const billNumber = billData.billNumber || billData._id;
       const total = billData.total || 0;
+      const subtotal = billData.subtotal || total;
 
       // Check if loyalty discount was applied
       const loyaltyApplied = billData.loyaltyInfo?.applied || false;
@@ -398,18 +399,55 @@ class WhatsAppService {
         `Dear ${customerName},\n\n` +
         `Thank you for your order! 💖\n\n`;
 
+      // Add order items
+      if (billData.items && billData.items.length > 0) {
+        caption += `📦 *Order Details:*\n`;
+        caption += `${"─".repeat(30)}\n`;
+
+        billData.items.forEach((item, index) => {
+          const itemName = item.name || "Item";
+          const quantity = item.quantity || 1;
+          const price = item.price || 0;
+          const weight = item.weight || null;
+
+          // Calculate item total
+          let itemTotal = price * quantity;
+          if (weight) {
+            itemTotal = price * weight * quantity;
+          }
+
+          // Format item line
+          let itemLine = `${index + 1}. *${itemName}*\n`;
+
+          if (weight) {
+            itemLine += `   ${weight}kg × ₹${price.toFixed(2)}/kg`;
+          } else {
+            itemLine += `   ${quantity}× × ₹${price.toFixed(2)}`;
+          }
+
+          if (quantity > 1 && weight) {
+            itemLine += ` × ${quantity}`;
+          }
+
+          itemLine += ` = ₹${itemTotal.toFixed(2)}\n`;
+          caption += itemLine;
+        });
+
+        caption += `${"─".repeat(30)}\n`;
+        caption += `💵 *Subtotal:* ₹${subtotal.toFixed(2)}\n`;
+      }
+
       // Add loyalty celebration message if applicable
       if (loyaltyApplied && loyaltyDiscount > 0) {
-        caption +=
-          `🎉 *LOYALTY REWARD APPLIED!* 🎉\n` +
-          `You saved ₹${loyaltyDiscount.toFixed(
-            2
-          )} (${loyaltyPercentage}% off)! 💝\n\n`;
+        caption += `🎉 *LOYALTY REWARD!* -₹${loyaltyDiscount.toFixed(
+          2
+        )} (${loyaltyPercentage}% off) 🎉\n`;
       }
+
+      caption += `💰 *Total Amount:* ₹${total.toFixed(2)}\n\n`;
 
       caption +=
         `📋 *Bill #:* ${billNumber}\n` +
-        `💰 *Total:* ₹${total.toFixed(2)}\n` +
         `📅 *Date:* ${new Date(billData.createdAt).toLocaleDateString(
           "en-IN"
         )}\n\n` +

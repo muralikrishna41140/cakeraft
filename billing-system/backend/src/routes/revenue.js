@@ -248,7 +248,8 @@ router.post("/export", protect, async (req, res) => {
     if (!process.env.GOOGLE_SHEETS_SPREADSHEET_ID) {
       return res.status(503).json({
         success: false,
-        message: "Google Sheets export is not configured. Please add GOOGLE_SHEETS_SPREADSHEET_ID to environment variables.",
+        message:
+          "Google Sheets export is not configured. Please add GOOGLE_SHEETS_SPREADSHEET_ID to environment variables.",
       });
     }
 
