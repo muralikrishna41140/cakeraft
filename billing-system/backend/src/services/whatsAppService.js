@@ -335,6 +335,9 @@ class WhatsAppService {
     try {
       this._init(); // Ensure initialization
 
+      console.log("🚀 WHATSAPP SERVICE - LATEST VERSION WITH ORDER ITEMS");
+      console.log("📋 Full Bill Data:", JSON.stringify(billData, null, 2));
+
       // Test mode simulation
       if (this.testMode) {
         console.log("📧 TEST MODE: Simulating WhatsApp bill sending...");
@@ -389,6 +392,16 @@ class WhatsAppService {
       const total = billData.total || 0;
       const subtotal = billData.subtotal || total;
 
+      // Debug logging
+      console.log("📋 Bill Data for WhatsApp:", {
+        customerName,
+        billNumber,
+        total,
+        subtotal,
+        itemsCount: billData.items?.length || 0,
+        loyaltyInfo: billData.loyaltyInfo,
+      });
+
       // Check if loyalty discount was applied
       const loyaltyApplied = billData.loyaltyInfo?.applied || false;
       const loyaltyDiscount = billData.loyaltyInfo?.discountAmount || 0;
@@ -401,6 +414,7 @@ class WhatsAppService {
 
       // Add order items
       if (billData.items && billData.items.length > 0) {
+        console.log("📦 Adding order items to message...");
         caption += `📦 *Order Details:*\n`;
         caption += `${"─".repeat(30)}\n`;
 
