@@ -33,13 +33,13 @@ export const metadata: Metadata = {
 
   title: {
     default: SITE_CONFIG.fullName,
-    template: "%s | CakeRaft",
+    template: "%s | murali",
   },
 
   description: SITE_CONFIG.description,
 
   keywords: [...KEYWORDS.primary, ...KEYWORDS.secondary, ...KEYWORDS.lsi].join(
-    ", "
+    ", ",
   ),
 
   authors: [{ name: SITE_CONFIG.name }],

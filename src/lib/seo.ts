@@ -88,20 +88,20 @@ export const KEYWORDS = {
 
 // Site Metadata
 export const SITE_CONFIG = {
-  name: "CakeRaft",
+  name: "murali",
   fullName:
-    "CakeRaft - Complete Cake Business Management & Billing Software for Bakeries",
+    "murali - Complete Cake Business Management & Billing Software for Bakeries",
   description:
-    "CakeRaft is the ultimate cloud-based cake business management system designed for modern bakeries and cake shops. Streamline your operations with intelligent billing, automated customer loyalty rewards, WhatsApp invoice delivery, real-time revenue analytics, inventory tracking, and Google Sheets integration. Perfect for custom cake businesses, artisan bakeries, and made-to-order cake shops looking to grow their business and increase customer retention.",
+    "murali is the ultimate cloud-based cake business management system designed for modern bakeries and cake shops. Streamline your operations with intelligent billing, automated customer loyalty rewards, WhatsApp invoice delivery, real-time revenue analytics, inventory tracking, and Google Sheets integration. Perfect for custom cake businesses, artisan bakeries, and made-to-order cake shops looking to grow their business and increase customer retention.",
   shortDescription:
     "Professional cake business management software with smart billing, loyalty rewards, WhatsApp integration, and real-time analytics for bakeries.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://cakeraft.com",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://murali.com",
   locale: "en_US",
   type: "website",
 
   // Business Information
   business: {
-    name: "CakeRaft",
+    name: "murali",
     type: "SoftwareApplication",
     category: "Business & Productivity",
     applicationCategory: "BusinessApplication",
@@ -134,7 +134,7 @@ export const SITE_CONFIG = {
 
   // Contact Information
   contact: {
-    email: "support@cakeraft.com",
+    email: "support@murali.com",
     phone: "+91-XXX-XXX-XXXX",
     address: {
       streetAddress: "Your Street Address",
@@ -147,17 +147,17 @@ export const SITE_CONFIG = {
 
   // Social Media
   social: {
-    twitter: "@cakeraft",
-    facebook: "https://facebook.com/cakeraft",
-    instagram: "https://instagram.com/cakeraft",
-    linkedin: "https://linkedin.com/company/cakeraft",
+    twitter: "@murali",
+    facebook: "https://facebook.com/murali",
+    instagram: "https://instagram.com/murali",
+    linkedin: "https://linkedin.com/company/murali",
   },
 };
 
 // Default SEO Configuration
 export const DEFAULT_SEO: DefaultSeoProps = {
   defaultTitle: SITE_CONFIG.fullName,
-  titleTemplate: "%s | CakeRaft - Cake Business Management",
+  titleTemplate: "%s | murali - Cake Business Management",
   description: SITE_CONFIG.description,
 
   // Canonical URL
@@ -176,14 +176,14 @@ export const DEFAULT_SEO: DefaultSeoProps = {
         url: `${SITE_CONFIG.url}/og-image.jpg`,
         width: 1200,
         height: 630,
-        alt: "CakeRaft - Professional Cake Business Management System",
+        alt: "murali - Professional Cake Business Management System",
         type: "image/jpeg",
       },
       {
         url: `${SITE_CONFIG.url}/og-image-square.jpg`,
         width: 800,
         height: 800,
-        alt: "CakeRaft Logo",
+        alt: "murali Logo",
         type: "image/jpeg",
       },
     ],
@@ -201,7 +201,7 @@ export const DEFAULT_SEO: DefaultSeoProps = {
     {
       name: "keywords",
       content: [...KEYWORDS.primary, ...KEYWORDS.secondary.slice(0, 5)].join(
-        ", "
+        ", ",
       ),
     },
     {
@@ -282,25 +282,25 @@ export const DEFAULT_SEO: DefaultSeoProps = {
 export const PAGE_SEO = {
   home: {
     title:
-      "CakeRaft - #1 Cake Business Management Software | Smart Billing & Analytics",
+      "murali - #1 Cake Business Management Software | Smart Billing & Analytics",
     description:
-      "Transform your cake business with CakeRaft, the complete cloud-based management system trusted by 100+ bakeries. Features: 🎂 Smart billing with customer loyalty rewards 📱 WhatsApp invoice delivery 📊 Real-time revenue analytics 🎯 Automated discount calculation 📈 30-day performance tracking. Perfect for home bakeries, custom cake shops, and artisan bakeries. Start managing your cake business like a pro today!",
+      "Transform your cake business with murali, the complete cloud-based management system trusted by 100+ bakeries. Features: 🎂 Smart billing with customer loyalty rewards 📱 WhatsApp invoice delivery 📊 Real-time revenue analytics 🎯 Automated discount calculation 📈 30-day performance tracking. Perfect for home bakeries, custom cake shops, and artisan bakeries. Start managing your cake business like a pro today!",
     keywords: [...KEYWORDS.primary, ...KEYWORDS.businessType].join(", "),
     canonical: SITE_CONFIG.url,
   },
 
   products: {
     title:
-      "Cake Product Management - Digital Menu Builder for Bakeries | CakeRaft",
+      "Cake Product Management - Digital Menu Builder for Bakeries | murali",
     description:
-      "Create and manage your complete cake catalog with CakeRaft. Easily add custom cakes, birthday cakes, wedding cakes, and specialty desserts with beautiful images, competitive pricing, and organized categories. Features: ✨ Visual product cards 🖼️ Image upload & management 💰 Flexible pricing 🏷️ Category organization 📱 Mobile-friendly interface. Showcase your creations and streamline your made-to-order bakery menu.",
+      "Create and manage your complete cake catalog with murali. Easily add custom cakes, birthday cakes, wedding cakes, and specialty desserts with beautiful images, competitive pricing, and organized categories. Features: ✨ Visual product cards 🖼️ Image upload & management 💰 Flexible pricing 🏷️ Category organization 📱 Mobile-friendly interface. Showcase your creations and streamline your made-to-order bakery menu.",
     keywords:
       "cake products, bakery menu management, custom cake pricing, cake categories, digital bakery menu, cake catalog software, product management bakery",
     canonical: `${SITE_CONFIG.url}/products`,
   },
 
   billing: {
-    title: "Smart Billing & Loyalty System - WhatsApp Invoices | CakeRaft",
+    title: "Smart Billing & Loyalty System - WhatsApp Invoices | murali",
     description:
       "Revolutionary billing system for cake businesses with built-in customer loyalty rewards. Features: 💳 Lightning-fast checkout process 🎁 Automatic 3rd purchase discounts 📱 WhatsApp PDF invoice delivery 👥 Customer purchase tracking 🛒 Real-time cart management 💰 Item-level discount system. Increase customer retention by 40% with our proven loyalty program. Perfect for busy bakeries processing multiple orders daily.",
     keywords:
@@ -309,16 +309,16 @@ export const PAGE_SEO = {
   },
 
   analytics: {
-    title: "Revenue Analytics Dashboard - Track Bakery Performance | CakeRaft",
+    title: "Revenue Analytics Dashboard - Track Bakery Performance | murali",
     description:
-      "Make data-driven decisions with CakeRaft's powerful analytics dashboard. Features: 📊 Real-time revenue tracking 📈 30-day performance charts 📉 Daily sales breakdown 💼 Order count metrics 📤 Google Sheets export 🎯 Customer insights. Monitor your cake business growth, identify trends, and optimize pricing strategies. Complete visibility into your bakery's financial performance.",
+      "Make data-driven decisions with murali's powerful analytics dashboard. Features: 📊 Real-time revenue tracking 📈 30-day performance charts 📉 Daily sales breakdown 💼 Order count metrics 📤 Google Sheets export 🎯 Customer insights. Monitor your cake business growth, identify trends, and optimize pricing strategies. Complete visibility into your bakery's financial performance.",
     keywords:
       "bakery analytics, revenue tracking, sales dashboard, business insights, bakery profit tracking, cake business analytics, sales reporting bakery",
     canonical: `${SITE_CONFIG.url}/analytics`,
   },
 
   categories: {
-    title: "Cake Categories Management - Organize Your Bakery Menu | CakeRaft",
+    title: "Cake Categories Management - Organize Your Bakery Menu | murali",
     description:
       "Organize your cake offerings with smart category management. Create categories for birthday cakes, wedding cakes, custom orders, seasonal specials, and more. Streamline your menu structure for better customer browsing experience.",
     keywords:
@@ -327,7 +327,7 @@ export const PAGE_SEO = {
   },
 
   dashboard: {
-    title: "Admin Dashboard - Complete Business Overview | CakeRaft",
+    title: "Admin Dashboard - Complete Business Overview | murali",
     description:
       "Your cake business command center. View today's revenue, manage products, process orders, track customer loyalty, and analyze performance - all from one beautiful dashboard. Get instant insights and take action to grow your bakery.",
     keywords:
@@ -484,7 +484,7 @@ export function getSoftwareApplicationSchema() {
     inLanguage: "en-IN",
     availableLanguage: ["en", "hi"],
     keywords: [...KEYWORDS.primary, ...KEYWORDS.secondary.slice(0, 5)].join(
-      ", "
+      ", ",
     ),
   };
 }
@@ -493,7 +493,7 @@ export function getSoftwareApplicationSchema() {
  * Generate Breadcrumb Schema
  */
 export function getBreadcrumbSchema(
-  items: Array<{ name: string; url: string }>
+  items: Array<{ name: string; url: string }>,
 ) {
   return {
     "@context": "https://schema.org",
